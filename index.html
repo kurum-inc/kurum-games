@@ -91,6 +91,7 @@
 </style>
 </head>
 <body>
+<button id="showButton" onclick="showContentsTemporarily()" disabled>豆の中身を一瞬確認する</button>
 <div id="container"></div>
 <div id="message"></div>
 <div id="quizContainer">
@@ -183,6 +184,8 @@ function shuffleAndStart() {
     for (let bean of beans) {
       document.getElementById('bean' + bean.index).style.pointerEvents = 'auto';
     }
+    // hintボタン有効化
+    document.getElementById('showButton').disabled = false;
   }, shuffleDelay);
 }
 
@@ -248,6 +251,26 @@ function checkAnswer(selectedOption, correctAnswer) {
   }
 }
 
+function showContentsTemporarily() {
+  document.getElementById('showButton').disabled = true;
+  
+  const tempBeansImages = []; // 一時的に豆の画像を保存する配列
+  
+  for (let bean of beans) {
+    const beanElement = document.getElementById('bean' + bean.index);
+    tempBeansImages.push(beanElement.style.backgroundImage); // 元の画像を保存
+    if (bean.isContentPresent) {
+      beanElement.style.backgroundImage = "url('right.png')";
+    }
+  }
+  
+  setTimeout(() => {
+    for (let i = 0; i < beans.length; i++) {
+      const beanElement = document.getElementById('bean' + beans[i].index);
+      beanElement.style.backgroundImage = tempBeansImages[i]; // 画像を元に戻す
+    }
+  }, 100);
+}
 
 createBeans();
 startGame();
