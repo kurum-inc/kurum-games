@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>枝豆を当てるゲーム</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {
     display: flex;
@@ -74,6 +75,18 @@
     color: #ffffff;
     cursor: pointer;
     border-radius: 5px;
+  }
+  @media screen and (min-width: 600px) {
+    .bean {
+      width: 40px;
+      height: 80px;
+    }
+    #message, #quizQuestion {
+      font-size: 24px;
+    }
+    #restartButton, .quizOption {
+      font-size: 16px;
+    }
   }
 </style>
 </head>
