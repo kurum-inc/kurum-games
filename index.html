@@ -74,6 +74,8 @@
 <div id="message"></div>
 <button id="restartButton" onclick="restartGame()">最初から始める</button>
 <img id="winImage" src="complete.jpg" alt="Win Image" />
+<audio id="successSound" src="success.mp3" preload="auto"></audio> <!-- 正解の音声ファイル -->
+<audio id="failSound" src="fail.mp3" preload="auto"></audio> <!-- 不正解の音声ファイル -->
 
 <script>
 let isContentPresent, correctCount;
@@ -99,6 +101,7 @@ function checkBean(index) {
   if (isContentPresent[index]) {
     correctCount++;
     document.getElementById('bean' + index).classList.add('hit'); // Change the color of the hit bean
+    document.getElementById('successSound').play(); // Play the success sound
     if (correctCount === requiredCorrectCount) {
       messageDiv.textContent = 'おめでとうございます！あなたの勝ちです！';
       document.getElementById('container').style.display = 'none';
@@ -109,6 +112,7 @@ function checkBean(index) {
       messageDiv.textContent = `当たり！ あと${requiredCorrectCount - correctCount}回正解すれば勝ちです。`;
     }
   } else {
+    document.getElementById('failSound').play(); // Play the fail sound
     messageDiv.textContent = '残念、もう一回';
     document.getElementById('restartButton').style.display = 'block';
     disableBeans(); // Disable clicking on all beans
