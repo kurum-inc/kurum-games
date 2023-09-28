@@ -26,13 +26,13 @@
   .bean {
     width: 40px;
     height: 80px;
-    background-image: url('mame.png'); /* 豆の画像 */
+    background-image: url('mame.png'); /* 初期の豆の画像 */
     background-size: contain;
     background-repeat: no-repeat;
     cursor: pointer;
   }
   .hit {
-    filter: brightness(100); /* 当たった豆の色を変更 */
+    background-image: url('right.png'); /* 正解時の豆の画像 */
   }
   #message {
     margin-top: 20px;
@@ -100,7 +100,7 @@ function checkBean(index) {
   let messageDiv = document.getElementById('message');
   if (isContentPresent[index]) {
     correctCount++;
-    document.getElementById('bean' + index).classList.add('hit'); // Change the color of the hit bean
+    document.getElementById('bean' + index).classList.add('hit'); // Change the image of the hit bean
     document.getElementById('successSound').play(); // Play the success sound
     if (correctCount === requiredCorrectCount) {
       messageDiv.textContent = 'おめでとうございます！あなたの勝ちです！';
@@ -134,4 +134,3 @@ initializeGame();
 
 </body>
 </html>
-
