@@ -57,21 +57,56 @@
     max-height: 100vh;
     display: none;
   }
+  #quizContainer {
+    display: none;
+    margin-top: 20px;
+    text-align: center;
+  }
+  #quizQuestion {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .quizOption {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 10px 20px;
+    background-color: #86B300;
+    color: #ffffff;
+    cursor: pointer;
+    border-radius: 5px;
+  }
 </style>
 </head>
 <body>
 <div id="container"></div>
 <div id="message"></div>
+<div id="quizContainer">
+  <div id="quizQuestion"></div>
+  <div id="quizOptions"></div>
+</div>
 <button id="restartButton" onclick="startGame()">再挑戦</button>
-<img id="winImage" src="beel007.jpg" alt="Win Image" />
-<audio id="successSound" src="success.mp3" preload="auto"></audio>
+<img id="winImage" src="complete.jpg" alt="Win Image" />
 <audio id="failSound" src="fail.mp3" preload="auto"></audio>
+<audio id="questionSound" src="question.mp3" preload="auto"></audio>
+<audio id="correctSound" src="correct.mp3" preload="auto"></audio>
 
 <script>
 let beans, correctCount;
 const requiredCorrectCount = 8;
 const shuffleDelay = 3000;
 const positions = [0, 60, 120, 180, 240, 300, 360, 420, 480, 540];
+const quizzes = [
+  { question: "枝豆は何科の植物ですか？", options: ["マメ科", "イモ科", "キャベツ科"], correctAnswer: "マメ科" },
+  { question: "枝豆は何月に収穫されますか？", options: ["6月", "7月", "8月"], correctAnswer: "7月" },
+  { question: "枝豆の原産地はどこですか？", options: ["中国", "日本", "ブラジル"], correctAnswer: "中国" },
+  { question: "枝豆は主に何のために食べられますか？", options: ["タンパク質", "炭水化物", "ビタミンC"], correctAnswer: "タンパク質" },
+  { question: "枝豆は何の種類の豆ですか？", options: ["ソラマメ", "インゲンマメ", "ダイズ"], correctAnswer: "ダイズ" },
+  { question: "枝豆を食べることで得られる主な栄養素は何ですか？", options: ["ビタミンA", "ビタミンC", "鉄"], correctAnswer: "ビタミンC" },
+  { question: "枝豆の茹で時間は通常何分ですか？", options: ["2分", "5分", "10分"], correctAnswer: "5分" },
+  { question: "枝豆の英語名は何ですか？", options: ["Pea", "Bean", "Edamame"], correctAnswer: "Edamame" },
+  { question: "枝豆は何で食べますか？", options: ["塩", "砂糖", "醤油"], correctAnswer: "塩" },
+  { question: "枝豆は冷凍保存ができますか？", options: ["はい", "いいえ"], correctAnswer: "はい" }
+];
 
 function createBeans() {
   const container = document.getElementById('container');
@@ -92,6 +127,7 @@ function startGame() {
   document.getElementById('restartButton').style.display = 'none';
   document.getElementById('container').style.display = 'flex';
   document.getElementById('winImage').style.display = 'none';
+  document.getElementById('quizContainer').style.display = 'none';
   for (let bean of beans) {
     document.getElementById('bean' + bean.index).classList.toggle('hit', bean.isContentPresent);
     document.getElementById('bean' + bean.index).style.pointerEvents = 'none';
@@ -122,17 +158,7 @@ function checkBean(index) {
   const bean = beans.find(b => b.index === index);
   if (bean.isContentPresent) {
     document.getElementById('bean' + index).classList.add('hit');
-    document.getElementById('successSound').play();
-    correctCount++;
-    if (correctCount === requiredCorrectCount) {
-      messageDiv.textContent = 'おめでとうございます！あなたの勝ちです！';
-      document.getElementById('container').style.display = 'none';
-      document.getElementById('message').style.display = 'none';
-      document.getElementById('restartButton').style.display = 'none';
-      document.getElementById('winImage').style.display = 'block';
-    } else {
-      messageDiv.textContent = `当たり！ あと${requiredCorrectCount - correctCount}回正解すれば勝ちです。`;
-    }
+    showQuiz();
   } else {
     document.getElementById('failSound').play();
     messageDiv.textContent = '残念、もう一回';
@@ -146,6 +172,49 @@ function disableBeans() {
     document.getElementById('bean' + bean.index).style.pointerEvents = 'none';
   }
 }
+
+function showQuiz() {
+  const quizContainer = document.getElementById('quizContainer');
+  const quizQuestion = document.getElementById('quizQuestion');
+  const quizOptionsDiv = document.getElementById('quizOptions');
+  
+  quizContainer.style.display = 'block';
+  const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+  quizQuestion.textContent = quiz.question;
+  quizOptionsDiv.innerHTML = '';
+  
+  document.getElementById('questionSound').play(); // 問題が出された時の音を再生
+  
+  quiz.options.forEach(option => {
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'quizOption';
+    optionDiv.textContent = option;
+    optionDiv.onclick = () => checkAnswer(option, quiz.correctAnswer);
+    quizOptionsDiv.appendChild(optionDiv);
+  });
+}
+
+function checkAnswer(selectedOption, correctAnswer) {
+  if (selectedOption === correctAnswer) {
+    document.getElementById('correctSound').play(); // 問題に正解した時の音を再生
+    correctCount++;
+    document.getElementById('quizContainer').style.display = 'none';
+    if (correctCount === requiredCorrectCount) {
+      document.getElementById('message').textContent = 'おめでとうございます！あなたの勝ちです！';
+      document.getElementById('container').style.display = 'none';
+      document.getElementById('message').style.display = 'none';
+      document.getElementById('quizContainer').style.display = 'none';
+      document.getElementById('restartButton').style.display = 'none';
+      document.getElementById('winImage').style.display = 'block';
+    }
+  } else {
+    document.getElementById('message').textContent = 'クイズが間違っています、再挑戦してください！';
+    document.getElementById('quizContainer').style.display = 'none';
+    document.getElementById('restartButton').style.display = 'block';
+    disableBeans();
+  }
+}
+
 
 createBeans();
 startGame();
