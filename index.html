@@ -17,7 +17,7 @@
     position: relative;
     width: 600px;
     height: 100px;
-    background-color: #ffffff; /* 枝豆の色 */
+    background-color: #ffffff;
     border-radius: 10px;
     display: flex;
     justify-content: space-around;
@@ -26,13 +26,15 @@
   .bean {
     width: 40px;
     height: 80px;
-    background-image: url('mame.png'); /* 初期の豆の画像 */
+    background-image: url('mame.png');
     background-size: contain;
     background-repeat: no-repeat;
     cursor: pointer;
+    position: absolute;
+    transition: left 0.5s ease-in-out;
   }
   .hit {
-    background-image: url('right.png'); /* 正解時の豆の画像 */
+    background-image: url('right.png');
   }
   #message {
     margin-top: 20px;
@@ -58,79 +60,96 @@
 </style>
 </head>
 <body>
-<div id="container">
-  <!-- 10個の豆を配置 -->
-  <div id="bean0" class="bean" onclick="checkBean(0)"></div>
-  <div id="bean1" class="bean" onclick="checkBean(1)"></div>
-  <div id="bean2" class="bean" onclick="checkBean(2)"></div>
-  <div id="bean3" class="bean" onclick="checkBean(3)"></div>
-  <div id="bean4" class="bean" onclick="checkBean(4)"></div>
-  <div id="bean5" class="bean" onclick="checkBean(5)"></div>
-  <div id="bean6" class="bean" onclick="checkBean(6)"></div>
-  <div id="bean7" class="bean" onclick="checkBean(7)"></div>
-  <div id="bean8" class="bean" onclick="checkBean(8)"></div>
-  <div id="bean9" class="bean" onclick="checkBean(9)"></div>
-</div>
+<div id="container"></div>
 <div id="message"></div>
-<button id="restartButton" onclick="restartGame()">最初から始める</button>
-<img id="winImage" src="complete.jpg" alt="Win Image" />
-<audio id="successSound" src="success.mp3" preload="auto"></audio> <!-- 正解の音声ファイル -->
-<audio id="failSound" src="fail.mp3" preload="auto"></audio> <!-- 不正解の音声ファイル -->
+<button id="restartButton" onclick="startGame()">再挑戦</button>
+<img id="winImage" src="beel007.jpg" alt="Win Image" />
+<audio id="successSound" src="success.mp3" preload="auto"></audio>
+<audio id="failSound" src="fail.mp3" preload="auto"></audio>
 
 <script>
-let isContentPresent, correctCount;
-const requiredCorrectCount = 8; // Number of correct beans required to win
+let beans, correctCount;
+const requiredCorrectCount = 8;
+const shuffleDelay = 3000;
+const positions = [0, 60, 120, 180, 240, 300, 360, 420, 480, 540];
 
-function initializeGame() {
-  isContentPresent = Array(requiredCorrectCount).fill(true).concat(Array(10 - requiredCorrectCount).fill(false));
-  isContentPresent = isContentPresent.sort(() => Math.random() - 0.5);
+function createBeans() {
+  const container = document.getElementById('container');
+  for (let i = 0; i < 10; i++) {
+    const bean = document.createElement('div');
+    bean.id = 'bean' + i;
+    bean.className = 'bean';
+    bean.onclick = () => checkBean(i);
+    bean.style.left = positions[i] + 'px';
+    container.appendChild(bean);
+  }
+}
+
+function startGame() {
+  beans = Array(10).fill().map((_, i) => ({ index: i, isContentPresent: i < requiredCorrectCount }));
   correctCount = 0;
-  document.getElementById('message').textContent = '';
+  document.getElementById('message').textContent = '豆が入っているものを覚えてください！';
   document.getElementById('restartButton').style.display = 'none';
   document.getElementById('container').style.display = 'flex';
   document.getElementById('winImage').style.display = 'none';
-  // Enable clicking on each bean
-  for (let i = 0; i < 10; i++) {
-    document.getElementById('bean' + i).style.pointerEvents = 'auto';
-    document.getElementById('bean' + i).classList.remove('hit');
+  for (let bean of beans) {
+    document.getElementById('bean' + bean.index).classList.toggle('hit', bean.isContentPresent);
+    document.getElementById('bean' + bean.index).style.pointerEvents = 'none';
   }
+  setTimeout(shuffleAndStart, shuffleDelay);
+}
+
+function shuffleAndStart() {
+  for (let bean of beans) {
+    document.getElementById('bean' + bean.index).classList.remove('hit');
+  }
+  document.getElementById('message').textContent = 'シャッフル中...';
+  beans.sort(() => Math.random() - 0.5);
+  const shuffledPositions = positions.slice().sort(() => Math.random() - 0.5);
+  for (let i = 0; i < 10; i++) {
+    document.getElementById('bean' + beans[i].index).style.left = shuffledPositions[i] + 'px';
+  }
+  setTimeout(() => {
+    document.getElementById('message').textContent = '正しい豆を選んでください！';
+    for (let bean of beans) {
+      document.getElementById('bean' + bean.index).style.pointerEvents = 'auto';
+    }
+  }, shuffleDelay);
 }
 
 function checkBean(index) {
   let messageDiv = document.getElementById('message');
-  if (isContentPresent[index]) {
+  const bean = beans.find(b => b.index === index);
+  if (bean.isContentPresent) {
+    document.getElementById('bean' + index).classList.add('hit');
+    document.getElementById('successSound').play();
     correctCount++;
-    document.getElementById('bean' + index).classList.add('hit'); // Change the image of the hit bean
-    document.getElementById('successSound').play(); // Play the success sound
     if (correctCount === requiredCorrectCount) {
       messageDiv.textContent = 'おめでとうございます！あなたの勝ちです！';
       document.getElementById('container').style.display = 'none';
       document.getElementById('message').style.display = 'none';
       document.getElementById('restartButton').style.display = 'none';
-      document.getElementById('winImage').style.display = 'block'; // Show the win image
+      document.getElementById('winImage').style.display = 'block';
     } else {
       messageDiv.textContent = `当たり！ あと${requiredCorrectCount - correctCount}回正解すれば勝ちです。`;
     }
   } else {
-    document.getElementById('failSound').play(); // Play the fail sound
+    document.getElementById('failSound').play();
     messageDiv.textContent = '残念、もう一回';
     document.getElementById('restartButton').style.display = 'block';
-    disableBeans(); // Disable clicking on all beans
+    disableBeans();
   }
 }
 
 function disableBeans() {
-  for (let i = 0; i < 10; i++) {
-    document.getElementById('bean' + i).style.pointerEvents = 'none';
+  for (let bean of beans) {
+    document.getElementById('bean' + bean.index).style.pointerEvents = 'none';
   }
 }
 
-function restartGame() {
-  initializeGame();
-}
-
-initializeGame();
+createBeans();
+startGame();
 </script>
-
 </body>
 </html>
+
