@@ -1,280 +1,464 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>枝豆を当てるゲーム</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
-  }
-  #container {
-    position: relative;
-    width: 600px;
-    height: 100px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-  }
-  .bean {
-    width: 40px;
-    height: 80px;
-    background-image: url('mame.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    position: absolute;
-    transition: left 0.5s ease-in-out;
-  }
-  .hit {
-    background-image: url('right.png');
-  }
-  #message {
-    margin-top: 20px;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  #restartButton {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #86B300;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    display: none;
-  }
-  #winImage {
-    max-width: 100%;
-    max-height: 100vh;
-    display: none;
-  }
-  #quizContainer {
-    display: none;
-    margin-top: 20px;
-    text-align: center;
-  }
-  #quizQuestion {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  .quizOption {
-    display: inline-block;
-    margin: 0 10px;
-    padding: 10px 20px;
-    background-color: #86B300;
-    color: #ffffff;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  @media screen and (min-width: 600px) {
-    .bean {
-      width: 40px;
-      height: 80px;
-    }
-    #message, #quizQuestion {
-      font-size: 24px;
-    }
-    #restartButton, .quizOption {
-      font-size: 16px;
-    }
-  }
-</style>
-</head>
-<body>
-<button id="showButton" onclick="showContentsTemporarily()" disabled>豆の中身を一瞬確認する</button>
-<div id="container"></div>
-<div id="message"></div>
-<div id="quizContainer">
-  <div id="quizQuestion"></div>
-  <div id="quizOptions"></div>
-</div>
-<button id="restartButton" onclick="startGame()">再挑戦</button>
-<img id="winImage" src="complete.jpg" alt="Win Image" />
-<audio id="failSound" src="fail.mp3" preload="auto"></audio>
-<audio id="questionSound" src="question.mp3" preload="auto"></audio>
-<audio id="correctSound" src="correct.mp3" preload="auto"></audio>
+  <head>
+    <meta charset="utf-8" />
+    <title>枝豆を当てるゲーム</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <style>
+         body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          min-height: 100vh;
+          margin: 0;
+          background-color: #f0f0f0;
+        }
+        #container {
+          position: relative;
+          width: 600px;
+          height: 100px;
+          background-color: #ffffff;
+          border-radius: 10px;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+        }
+        .bean {
+          width: 40px;
+          height: 80px;
+          background-image: url('mame.png');
+          background-size: contain;
+          background-repeat: no-repeat;
+          cursor: pointer;
+          position: absolute;
+          transition: left 0.5s ease-in-out;
+        }
+        .hit {
+          background-image: url('right.png');
+        }
+        #message {
+          margin-top: 20px;
+          font-size: 24px;
+          font-weight: bold;
+        }
+        #restartButton {
+          margin-top: 20px;
+          padding: 10px 20px;
+          font-size: 16px;
+          cursor: pointer;
+          background-color: #86B300;
+          color: #ffffff;
+          border: none;
+          border-radius: 5px;
+          display: none;
+        }
+        #winImage {
+          max-width: 100%;
+          max-height: 100vh;
+          display: none;
+        }
+        #quizContainer {
+          display: none;
+          margin-top: 20px;
+          text-align: center;
+        }
+        #quizQuestion {
+          font-size: 20px;
+          margin-bottom: 10px;
+        }
+        .quizOption {
+          display: inline-block;
+          margin: 0 10px;
+          padding: 10px 20px;
+          background-color: #86B300;
+          color: #ffffff;
+          cursor: pointer;
+          border-radius: 5px;
+        }
+        @media screen and (min-width: 600px) {
+          .bean {
+            width: 40px;
+            height: 80px;
+          }
+          #message, #quizQuestion {
+            font-size: 24px;
+          }
+          #restartButton, .quizOption {
+            font-size: 16px;
+          }
+        }
 
-<script>
-let beans, correctCount;
-const requiredCorrectCount = 8;
-const shuffleDelay = 3000;
-const positions = [0, 60, 120, 180, 240, 300, 360, 420, 480, 540];
-const quizzes = [
-  { question: "枝豆は何科の植物ですか？", options: ["マメ科", "イモ科", "キャベツ科"], correctAnswer: "マメ科" },
-  { question: "枝豆は何月に収穫されますか？", options: ["6月", "7月", "8月"], correctAnswer: "7月" },
-  { question: "枝豆の原産地はどこですか？", options: ["中国", "日本", "ブラジル"], correctAnswer: "中国" },
-  { question: "枝豆は主に何のために食べられますか？", options: ["タンパク質", "炭水化物", "ビタミンC"], correctAnswer: "タンパク質" },
-  { question: "枝豆は何の種類の豆ですか？", options: ["ソラマメ", "インゲンマメ", "ダイズ"], correctAnswer: "ダイズ" },
-  { question: "枝豆を食べることで得られる主な栄養素は何ですか？", options: ["ビタミンA", "ビタミンC", "鉄"], correctAnswer: "ビタミンC" },
-  { question: "枝豆の茹で時間は通常何分ですか？", options: ["2分", "5分", "10分"], correctAnswer: "5分" },
-  { question: "枝豆の英語名は何ですか？", options: ["Pea", "Bean", "Edamame"], correctAnswer: "Edamame" },
-  { question: "枝豆は何で食べますか？", options: ["塩", "砂糖", "醤油"], correctAnswer: "塩" },
-  { question: "枝豆は冷凍保存ができますか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆の花の色は何色ですか？", options: ["白", "黄", "紫"], correctAnswer: "白" },
-  { question: "枝豆は一年草ですか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆の収穫時期はどの季節ですか？", options: ["春", "夏", "秋"], correctAnswer: "夏" },
-  { question: "枝豆は焼酎の原料になりますか？", options: ["はい", "いいえ"], correctAnswer: "いいえ" },
-  { question: "枝豆はどの部位を食べますか？", options: ["葉", "茎", "実"], correctAnswer: "実" },
-  { question: "枝豆にはどのビタミンが豊富ですか？", options: ["ビタミンB", "ビタミンC", "ビタミンD"], correctAnswer: "ビタミンB" },
-  { question: "枝豆の蒸し時間は何分ですか？", options: ["5分", "10分", "15分"], correctAnswer: "5分" },
-  { question: "枝豆の栄養成分で最も多いのは？", options: ["たんぱく質", "炭水化物", "脂質"], correctAnswer: "たんぱく質" },
-  { question: "枝豆は夜食に適していますか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆の英語名は？", options: ["Edamame", "Peas", "Beans"], correctAnswer: "Edamame" },
-  { question: "枝豆は栄養価が高い食品ですか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆はダイエットに適していますか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆の正しい収穫方法は？", options: ["手で摘む", "ハサミで切る", "引き抜く"], correctAnswer: "手で摘む" },
-  { question: "枝豆は何で食べると美味しいですか？", options: ["ビール", "ワイン", "ウイスキー"], correctAnswer: "ビール" },
-  { question: "枝豆の成熟期はどのくらいですか？", options: ["60日", "90日", "120日"], correctAnswer: "90日" },
-  { question: "枝豆はローストして食べられますか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆に含まれるミネラルで最も多いのは？", options: ["カリウム", "カルシウム", "鉄"], correctAnswer: "カリウム" },
-  { question: "枝豆はアレルギーの原因になりますか？", options: ["はい", "いいえ"], correctAnswer: "はい" },
-  { question: "枝豆は何で茹でますか？", options: ["塩水", "お湯", "水"], correctAnswer: "塩水" },
-  { question: "枝豆は日持ちしますか？", options: ["はい", "いいえ"], correctAnswer: "いいえ" },
-];
+          @media screen and (max-width: 599px) {
+              #container {
+                  width: 100%;
+                  padding: 0 20px;
+                  box-sizing: border-box;
+              }
+              .bean {
+                  width: 20%;
+                  height: 40px;
+              }
+              #message, #quizQuestion {
+                  font-size: 18px;
+              }
+              #restartButton, .quizOption {
+                  font-size: 14px;
+                  padding: 10px 15px;
+              }
+              #showButton {
+                  font-size: 14px;
+                  padding: 10px 15px;
+              }
+              .quizOption {
+                  margin: 0 5px;
+              }
+          }
 
-function createBeans() {
-  const container = document.getElementById('container');
-  for (let i = 0; i < 10; i++) {
-    const bean = document.createElement('div');
-    bean.id = 'bean' + i;
-    bean.className = 'bean';
-    bean.onclick = () => checkBean(i);
-    bean.style.left = positions[i] + 'px';
-    container.appendChild(bean);
-  }
-}
+      @media screen and (max-width: 599px) {
+          #container {
+              flex-direction: column;
+          }
+          .bean {
+              width: 100%;
+          }
+      }
+    </style>
+  </head>
+  <body>
+    <button disabled="" id="showButton" onclick="showContentsTemporarily()">
+      豆の中身を一瞬確認する
+    </button>
+    <div id="container"></div>
+    <div id="message"></div>
+    <div id="quizContainer">
+      <div id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+    </div>
+    <button id="restartButton" onclick="startGame()">再挑戦</button>
+    <img alt="Win Image" id="winImage" src="complete.jpg" />
+    <audio id="failSound" preload="auto" src="fail.mp3"></audio>
+    <audio id="questionSound" preload="auto" src="question.mp3"></audio>
+    <audio id="correctSound" preload="auto" src="correct.mp3"></audio>
+    <script>
+      let beans, correctCount;
+      const requiredCorrectCount = 8;
+      const shuffleDelay = 3000;
+      const positions = [0, 60, 120, 180, 240, 300, 360, 420, 480, 540];
+      const quizzes = [
+        {
+          question: "枝豆は何科の植物ですか？",
+          options: ["マメ科", "イモ科", "キャベツ科"],
+          correctAnswer: "マメ科",
+        },
+        {
+          question: "枝豆は何月に収穫されますか？",
+          options: ["6月", "7月", "8月"],
+          correctAnswer: "7月",
+        },
+        {
+          question: "枝豆の原産地はどこですか？",
+          options: ["中国", "日本", "ブラジル"],
+          correctAnswer: "中国",
+        },
+        {
+          question: "枝豆は主に何のために食べられますか？",
+          options: ["タンパク質", "炭水化物", "ビタミンC"],
+          correctAnswer: "タンパク質",
+        },
+        {
+          question: "枝豆は何の種類の豆ですか？",
+          options: ["ソラマメ", "インゲンマメ", "ダイズ"],
+          correctAnswer: "ダイズ",
+        },
+        {
+          question: "枝豆を食べることで得られる主な栄養素は何ですか？",
+          options: ["ビタミンA", "ビタミンC", "鉄"],
+          correctAnswer: "ビタミンC",
+        },
+        {
+          question: "枝豆の茹で時間は通常何分ですか？",
+          options: ["2分", "5分", "10分"],
+          correctAnswer: "5分",
+        },
+        {
+          question: "枝豆の英語名は何ですか？",
+          options: ["Pea", "Bean", "Edamame"],
+          correctAnswer: "Edamame",
+        },
+        {
+          question: "枝豆は何で食べますか？",
+          options: ["塩", "砂糖", "醤油"],
+          correctAnswer: "塩",
+        },
+        {
+          question: "枝豆は冷凍保存ができますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆の花の色は何色ですか？",
+          options: ["白", "黄", "紫"],
+          correctAnswer: "白",
+        },
+        {
+          question: "枝豆は一年草ですか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆の収穫時期はどの季節ですか？",
+          options: ["春", "夏", "秋"],
+          correctAnswer: "夏",
+        },
+        {
+          question: "枝豆は焼酎の原料になりますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "いいえ",
+        },
+        {
+          question: "枝豆はどの部位を食べますか？",
+          options: ["葉", "茎", "実"],
+          correctAnswer: "実",
+        },
+        {
+          question: "枝豆にはどのビタミンが豊富ですか？",
+          options: ["ビタミンB", "ビタミンC", "ビタミンD"],
+          correctAnswer: "ビタミンB",
+        },
+        {
+          question: "枝豆の蒸し時間は何分ですか？",
+          options: ["5分", "10分", "15分"],
+          correctAnswer: "5分",
+        },
+        {
+          question: "枝豆の栄養成分で最も多いのは？",
+          options: ["たんぱく質", "炭水化物", "脂質"],
+          correctAnswer: "たんぱく質",
+        },
+        {
+          question: "枝豆は夜食に適していますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆の英語名は？",
+          options: ["Edamame", "Peas", "Beans"],
+          correctAnswer: "Edamame",
+        },
+        {
+          question: "枝豆は栄養価が高い食品ですか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆はダイエットに適していますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆の正しい収穫方法は？",
+          options: ["手で摘む", "ハサミで切る", "引き抜く"],
+          correctAnswer: "手で摘む",
+        },
+        {
+          question: "枝豆は何で食べると美味しいですか？",
+          options: ["ビール", "ワイン", "ウイスキー"],
+          correctAnswer: "ビール",
+        },
+        {
+          question: "枝豆の成熟期はどのくらいですか？",
+          options: ["60日", "90日", "120日"],
+          correctAnswer: "90日",
+        },
+        {
+          question: "枝豆はローストして食べられますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆に含まれるミネラルで最も多いのは？",
+          options: ["カリウム", "カルシウム", "鉄"],
+          correctAnswer: "カリウム",
+        },
+        {
+          question: "枝豆はアレルギーの原因になりますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "はい",
+        },
+        {
+          question: "枝豆は何で茹でますか？",
+          options: ["塩水", "お湯", "水"],
+          correctAnswer: "塩水",
+        },
+        {
+          question: "枝豆は日持ちしますか？",
+          options: ["はい", "いいえ"],
+          correctAnswer: "いいえ",
+        },
+      ];
 
-function startGame() {
-  beans = Array(10).fill().map((_, i) => ({ index: i, isContentPresent: i < requiredCorrectCount }));
-  correctCount = 0;
-  document.getElementById('message').textContent = '豆が入っているものを覚えてください！';
-  document.getElementById('restartButton').style.display = 'none';
-  document.getElementById('container').style.display = 'flex';
-  document.getElementById('winImage').style.display = 'none';
-  document.getElementById('quizContainer').style.display = 'none';
-  for (let bean of beans) {
-    document.getElementById('bean' + bean.index).classList.toggle('hit', bean.isContentPresent);
-    document.getElementById('bean' + bean.index).style.pointerEvents = 'none';
-  }
-  setTimeout(shuffleAndStart, shuffleDelay);
-}
+      function createBeans() {
+        const container = document.getElementById("container");
+        for (let i = 0; i < 10; i++) {
+          const bean = document.createElement("div");
+          bean.id = "bean" + i;
+          bean.className = "bean";
+          bean.onclick = () => checkBean(i);
+          bean.style.left = positions[i] + "px";
+          container.appendChild(bean);
+        }
+      }
 
-function shuffleAndStart() {
-  for (let bean of beans) {
-    document.getElementById('bean' + bean.index).classList.remove('hit');
-  }
-  document.getElementById('message').textContent = 'シャッフル中...';
-  beans.sort(() => Math.random() - 0.5);
-  const shuffledPositions = positions.slice().sort(() => Math.random() - 0.5);
-  for (let i = 0; i < 10; i++) {
-    document.getElementById('bean' + beans[i].index).style.left = shuffledPositions[i] + 'px';
-  }
-  setTimeout(() => {
-    document.getElementById('message').textContent = '正しい豆を選んでください！';
-    for (let bean of beans) {
-      document.getElementById('bean' + bean.index).style.pointerEvents = 'auto';
-    }
-    // hintボタン有効化
-    document.getElementById('showButton').disabled = false;
-  }, shuffleDelay);
-}
+      function startGame() {
+        beans = Array(10)
+          .fill()
+          .map((_, i) => ({
+            index: i,
+            isContentPresent: i < requiredCorrectCount,
+          }));
+        correctCount = 0;
+        document.getElementById("message").textContent =
+          "豆が入っているものを覚えてください！";
+        document.getElementById("restartButton").style.display = "none";
+        document.getElementById("container").style.display = "flex";
+        document.getElementById("winImage").style.display = "none";
+        document.getElementById("quizContainer").style.display = "none";
+        for (let bean of beans) {
+          document
+            .getElementById("bean" + bean.index)
+            .classList.toggle("hit", bean.isContentPresent);
+          document.getElementById("bean" + bean.index).style.pointerEvents =
+            "none";
+        }
+        setTimeout(shuffleAndStart, shuffleDelay);
+      }
 
-function checkBean(index) {
-  let messageDiv = document.getElementById('message');
-  const bean = beans.find(b => b.index === index);
-  if (bean.isContentPresent) {
-    document.getElementById('bean' + index).classList.add('hit');
-    showQuiz();
-  } else {
-    document.getElementById('failSound').play();
-    messageDiv.textContent = '残念、もう一回';
-    document.getElementById('restartButton').style.display = 'block';
-    disableBeans();
-  }
-}
+      function shuffleAndStart() {
+        for (let bean of beans) {
+          document.getElementById("bean" + bean.index).classList.remove("hit");
+        }
+        document.getElementById("message").textContent = "シャッフル中...";
+        beans.sort(() => Math.random() - 0.5);
+        const shuffledPositions = positions
+          .slice()
+          .sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 10; i++) {
+          document.getElementById("bean" + beans[i].index).style.left =
+            shuffledPositions[i] + "px";
+        }
+        setTimeout(() => {
+          document.getElementById("message").textContent =
+            "正しい豆を選んでください！";
+          for (let bean of beans) {
+            document.getElementById("bean" + bean.index).style.pointerEvents =
+              "auto";
+          }
+          // hintボタン有効化
+          document.getElementById("showButton").disabled = false;
+        }, shuffleDelay);
+      }
 
-function disableBeans() {
-  for (let bean of beans) {
-    document.getElementById('bean' + bean.index).style.pointerEvents = 'none';
-  }
-}
+      function checkBean(index) {
+        let messageDiv = document.getElementById("message");
+        const bean = beans.find((b) => b.index === index);
+        if (bean.isContentPresent) {
+          document.getElementById("bean" + index).classList.add("hit");
+          showQuiz();
+        } else {
+          document.getElementById("failSound").play();
+          messageDiv.textContent = "残念、もう一回";
+          document.getElementById("restartButton").style.display = "block";
+          disableBeans();
+        }
+      }
 
-function showQuiz() {
-  const quizContainer = document.getElementById('quizContainer');
-  const quizQuestion = document.getElementById('quizQuestion');
-  const quizOptionsDiv = document.getElementById('quizOptions');
-  
-  quizContainer.style.display = 'block';
-  const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-  quizQuestion.textContent = quiz.question;
-  quizOptionsDiv.innerHTML = '';
-  
-  document.getElementById('questionSound').play(); // 問題が出された時の音を再生
-  
-  quiz.options.forEach(option => {
-    const optionDiv = document.createElement('div');
-    optionDiv.className = 'quizOption';
-    optionDiv.textContent = option;
-    optionDiv.onclick = () => checkAnswer(option, quiz.correctAnswer);
-    quizOptionsDiv.appendChild(optionDiv);
-  });
-}
+      function disableBeans() {
+        for (let bean of beans) {
+          document.getElementById("bean" + bean.index).style.pointerEvents =
+            "none";
+        }
+      }
 
-function checkAnswer(selectedOption, correctAnswer) {
-  if (selectedOption === correctAnswer) {
-    document.getElementById('correctSound').play(); // 問題に正解した時の音を再生
-    correctCount++;
-    document.getElementById('quizContainer').style.display = 'none';
-    if (correctCount === requiredCorrectCount) {
-      document.getElementById('message').textContent = 'おめでとうございます！あなたの勝ちです！';
-      document.getElementById('container').style.display = 'none';
-      document.getElementById('message').style.display = 'none';
-      document.getElementById('quizContainer').style.display = 'none';
-      document.getElementById('restartButton').style.display = 'none';
-      document.getElementById('winImage').style.display = 'block';
-    }
-  } else {
-    document.getElementById('message').textContent = 'クイズが間違っています、再挑戦してください！';
-    document.getElementById('quizContainer').style.display = 'none';
-    document.getElementById('restartButton').style.display = 'block';
-    disableBeans();
-  }
-}
+      function showQuiz() {
+        const quizContainer = document.getElementById("quizContainer");
+        const quizQuestion = document.getElementById("quizQuestion");
+        const quizOptionsDiv = document.getElementById("quizOptions");
 
-function showContentsTemporarily() {
-  document.getElementById('showButton').disabled = true;
-  
-  const tempBeansImages = []; // 一時的に豆の画像を保存する配列
-  
-  for (let bean of beans) {
-    const beanElement = document.getElementById('bean' + bean.index);
-    tempBeansImages.push(beanElement.style.backgroundImage); // 元の画像を保存
-    if (bean.isContentPresent) {
-      beanElement.style.backgroundImage = "url('right.png')";
-    }
-  }
-  
-  setTimeout(() => {
-    for (let i = 0; i < beans.length; i++) {
-      const beanElement = document.getElementById('bean' + beans[i].index);
-      beanElement.style.backgroundImage = tempBeansImages[i]; // 画像を元に戻す
-    }
-  }, 100);
-}
+        quizContainer.style.display = "block";
+        const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+        quizQuestion.textContent = quiz.question;
+        quizOptionsDiv.innerHTML = "";
 
-createBeans();
-startGame();
-</script>
-</body>
+        document.getElementById("questionSound").play(); // 問題が出された時の音を再生
+
+        quiz.options.forEach((option) => {
+          const optionDiv = document.createElement("div");
+          optionDiv.className = "quizOption";
+          optionDiv.textContent = option;
+          optionDiv.onclick = () => checkAnswer(option, quiz.correctAnswer);
+          quizOptionsDiv.appendChild(optionDiv);
+        });
+      }
+
+      function checkAnswer(selectedOption, correctAnswer) {
+        if (selectedOption === correctAnswer) {
+          document.getElementById("correctSound").play(); // 問題に正解した時の音を再生
+          correctCount++;
+          document.getElementById("quizContainer").style.display = "none";
+          if (correctCount === requiredCorrectCount) {
+            document.getElementById("message").textContent =
+              "おめでとうございます！あなたの勝ちです！";
+            document.getElementById("container").style.display = "none";
+            document.getElementById("message").style.display = "none";
+            document.getElementById("quizContainer").style.display = "none";
+            document.getElementById("restartButton").style.display = "none";
+            document.getElementById("winImage").style.display = "block";
+          }
+        } else {
+          document.getElementById("message").textContent =
+            "クイズが間違っています、再挑戦してください！";
+          document.getElementById("quizContainer").style.display = "none";
+          document.getElementById("restartButton").style.display = "block";
+          disableBeans();
+        }
+      }
+
+      function showContentsTemporarily() {
+        document.getElementById("showButton").disabled = true;
+
+        const tempBeansImages = []; // 一時的に豆の画像を保存する配列
+
+        for (let bean of beans) {
+          const beanElement = document.getElementById("bean" + bean.index);
+          tempBeansImages.push(beanElement.style.backgroundImage); // 元の画像を保存
+          if (bean.isContentPresent) {
+            beanElement.style.backgroundImage = "url('right.png')";
+          }
+        }
+
+        setTimeout(() => {
+          for (let i = 0; i < beans.length; i++) {
+            const beanElement = document.getElementById(
+              "bean" + beans[i].index
+            );
+            beanElement.style.backgroundImage = tempBeansImages[i]; // 画像を元に戻す
+          }
+        }, 100);
+      }
+
+      createBeans();
+      startGame();
+
+      function checkOrientation() {
+        if (window.innerHeight > window.innerWidth) {
+          alert(
+            "このゲームは横画面でプレイしてください。画面を回転させてください。"
+          );
+        }
+      }
+      window.addEventListener("load", checkOrientation, false);
+      window.addEventListener("resize", checkOrientation, false);
+    </script>
+  </body>
 </html>
-
