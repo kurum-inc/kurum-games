@@ -5,131 +5,166 @@
     <title>枝豆を当てるゲーム</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <style>
-         body {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          min-height: 100vh;
-          margin: 0;
-          background-color: #f0f0f0;
-        }
-        #container {
-          position: relative;
-          width: 600px;
-          height: 100px;
-          background-color: #ffffff;
-          border-radius: 10px;
-          display: flex;
-          justify-content: space-around;
-          align-items: center;
-        }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      #container {
+        position: relative;
+        width: 600px;
+        height: 100px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .bean {
+        width: 40px;
+        height: 80px;
+        background-image: url("mame.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        cursor: pointer;
+        position: absolute;
+        transition: left 0.5s ease-in-out;
+      }
+      .hit {
+        background-image: url("right.png");
+      }
+      #message {
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      #restartButton {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #86b300;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        display: none;
+      }
+      #winImage {
+        max-width: 100%;
+        max-height: 100vh;
+        display: none;
+      }
+      #quizContainer {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+      }
+      #quizQuestion {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      .quizOption {
+        display: inline-block;
+        margin: 0 10px;
+        padding: 10px 20px;
+        background-color: #86b300;
+        color: #ffffff;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      @media screen and (min-width: 600px) {
         .bean {
           width: 40px;
           height: 80px;
-          background-image: url('mame.png');
-          background-size: contain;
-          background-repeat: no-repeat;
-          cursor: pointer;
-          position: absolute;
-          transition: left 0.5s ease-in-out;
         }
-        .hit {
-          background-image: url('right.png');
-        }
-        #message {
-          margin-top: 20px;
-          font-size: 24px;
-          font-weight: bold;
-        }
-        #restartButton {
-          margin-top: 20px;
-          padding: 10px 20px;
-          font-size: 16px;
-          cursor: pointer;
-          background-color: #86B300;
-          color: #ffffff;
-          border: none;
-          border-radius: 5px;
-          display: none;
-        }
-        #winImage {
-          max-width: 100%;
-          max-height: 100vh;
-          display: none;
-        }
-        #quizContainer {
-          display: none;
-          margin-top: 20px;
-          text-align: center;
-        }
+        #message,
         #quizQuestion {
-          font-size: 20px;
-          margin-bottom: 10px;
+          font-size: 24px;
         }
+        #restartButton,
         .quizOption {
-          display: inline-block;
-          margin: 0 10px;
-          padding: 10px 20px;
-          background-color: #86B300;
-          color: #ffffff;
-          cursor: pointer;
-          border-radius: 5px;
+          font-size: 16px;
         }
-        @media screen and (min-width: 600px) {
-          .bean {
-            width: 40px;
-            height: 80px;
-          }
-          #message, #quizQuestion {
-            font-size: 24px;
-          }
-          #restartButton, .quizOption {
-            font-size: 16px;
-          }
-        }
-
-          @media screen and (max-width: 599px) {
-              #container {
-                  width: 100%;
-                  padding: 0 20px;
-                  box-sizing: border-box;
-              }
-              .bean {
-                  width: 20%;
-                  height: 40px;
-              }
-              #message, #quizQuestion {
-                  font-size: 18px;
-              }
-              #restartButton, .quizOption {
-                  font-size: 14px;
-                  padding: 10px 15px;
-              }
-              #showButton {
-                  font-size: 14px;
-                  padding: 10px 15px;
-              }
-              .quizOption {
-                  margin: 0 5px;
-              }
-          }
+      }
 
       @media screen and (max-width: 599px) {
-          #container {
-              flex-direction: column;
-          }
-          .bean {
-              width: 100%;
-          }
+        #container {
+          width: 100%;
+          padding: 0 20px;
+          box-sizing: border-box;
+        }
+        .bean {
+          width: 20%;
+          height: 40px;
+        }
+        #message,
+        #quizQuestion {
+          font-size: 18px;
+        }
+        #restartButton,
+        .quizOption {
+          font-size: 14px;
+          padding: 10px 15px;
+        }
+        #showButton {
+          font-size: 14px;
+          padding: 10px 15px;
+        }
+        .quizOption {
+          margin: 0 5px;
+        }
+      }
+
+      @media screen and (max-width: 599px) {
+        #container {
+          flex-direction: column;
+        }
+        .bean {
+          width: 100%;
+        }
+      }
+      #startScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      #startButton {
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #audioWarning {
+        margin-top: 20px; /* 上部にマージンを追加 */
+        font-size: 14px;
+        color: #ff0000;
       }
     </style>
   </head>
   <body>
-    <button disabled="" id="showButton" onclick="showContentsTemporarily()">
-      豆の中身を一瞬確認する
-    </button>
+    <div id="startScreen">
+      <button id="startButton">ゲームを始める</button>
+    </div>
+
     <div id="container"></div>
+    <button id="showButton" onclick="showContentsTemporarily()">
+      一瞬豆を見る
+    </button>
+
     <div id="message"></div>
     <div id="quizContainer">
       <div id="quizQuestion"></div>
@@ -198,7 +233,7 @@
         },
         {
           question: "枝豆の花の色は何色ですか？",
-          options: ["白", "黄", "紫"],
+          options: ["白", "黄"],
           correctAnswer: "白",
         },
         {
@@ -448,7 +483,13 @@
       }
 
       createBeans();
-      startGame();
+
+      document
+        .getElementById("startButton")
+        .addEventListener("click", function () {
+          document.getElementById("startScreen").style.display = "none";
+          startGame();
+        });
 
       function checkOrientation() {
         if (window.innerHeight > window.innerWidth) {
