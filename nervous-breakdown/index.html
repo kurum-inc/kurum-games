@@ -28,6 +28,10 @@
     </style>
 </head>
 <body>
+<audio id="touchSound" src="touch.mp3"></audio>
+<audio id="correctSound" src="correct.mp3"></audio>
+<audio id="uncorrectSound" src="uncorrect.mp3"></audio>
+
     <div class="score">スコア: <span id="score">1000</span></div>
     <div class="board">
         <!-- 20 cards will be generated here by JavaScript -->
@@ -52,26 +56,33 @@
                 cardElement.dataset.image = card;
 
                 cardElement.addEventListener("click", function() {
-                    if (flippedCards.length < 2 && !this.classList.contains("flipped")) {
-                        this.style.backgroundImage = `url(${this.dataset.image})`;
-                        this.style.backgroundSize = "cover";
+                    if (flippedCards.length < 2 && !this.classList.contains("flipped") && (!flippedCards[0] || flippedCards[0] !== this)) {
+                        document.getElementById("touchSound").play();
+        this.style.backgroundImage = `url(${this.dataset.image})`;
+        if (flippedCards.length === 2 && flippedCards[0] === flippedCards[1]) {
+            flippedCards = [];
+        }
+                        this.style.backgroundSize = "cover";  // Add this line to resize the image
                         flippedCards.push(this);
 
-                        if (flippedCards.length === 2) {
-                            if (flippedCards[0].dataset.image !== flippedCards[1].dataset.image) {
-                                score -= 50;
+                        if (flippedCards.length === 2 && flippedCards[0] !== flippedCards[1]) {
+                            if (flippedCards[0] !== flippedCards[1] && flippedCards[0].dataset.image !== flippedCards[1].dataset.image) {
+                                document.getElementById("uncorrectSound").play();
+        score -= 50;
                                 scoreElement.textContent = score;
                                 setTimeout(() => {
                                     flippedCards.forEach(card => {
-                                        card.style.backgroundImage = "none";
+                                        card.style.backgroundImage = "none";  // Change this line to remove the image
                                     });
                                     flippedCards = [];
                                 }, 1000);
                             } else {
-                                flippedCards.forEach(card => card.classList.add("flipped"));
+                                document.getElementById("correctSound").play();
+        flippedCards.forEach(card => card.classList.add("flipped"));
                                 flippedCards = [];
                                 if (document.querySelectorAll(".flipped").length === 20) {
-                                    alert(`ゲーム終了！スコア: ${score}`);
+                                    document.getElementById("correctSound").play();
+        alert(`ゲーム終了！スコア: ${score}`);
                                 }
                             }
                         }
