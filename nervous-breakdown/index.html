@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神経衰弱ゲーム</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 320px;
+            margin: 50px auto;
+        }
+
+        .card {
+            width: 70px;
+            height: 70px;
+            background-color: gray;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .flipped {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="score">スコア: <span id="score">1000</span></div>
+    <div class="board">
+        <!-- 20 cards will be generated here by JavaScript -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const board = document.querySelector(".board");
+            const scoreElement = document.getElementById("score");
+            const cardImages = [
+                "mame1.png", "mame2.png", "mame3.png", "mame4.png", "mame5.png"
+            ];
+            const cards = Array(4).fill(cardImages).flat();
+            let shuffledCards = shuffle(cards);
+
+            let flippedCards = [];
+            let score = 1000;
+
+            shuffledCards.forEach((card, index) => {
+                const cardElement = document.createElement("div");
+                cardElement.classList.add("card");
+                cardElement.dataset.image = card;
+
+                cardElement.addEventListener("click", function() {
+                    if (flippedCards.length < 2 && !this.classList.contains("flipped")) {
+                        this.style.backgroundImage = `url(${this.dataset.image})`;
+                        this.style.backgroundSize = "cover";
+                        flippedCards.push(this);
+
+                        if (flippedCards.length === 2) {
+                            if (flippedCards[0].dataset.image !== flippedCards[1].dataset.image) {
+                                score -= 50;
+                                scoreElement.textContent = score;
+                                setTimeout(() => {
+                                    flippedCards.forEach(card => {
+                                        card.style.backgroundImage = "none";
+                                    });
+                                    flippedCards = [];
+                                }, 1000);
+                            } else {
+                                flippedCards.forEach(card => card.classList.add("flipped"));
+                                flippedCards = [];
+                                if (document.querySelectorAll(".flipped").length === 20) {
+                                    alert(`ゲーム終了！スコア: ${score}`);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                board.appendChild(cardElement);
+            });
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        });
+    </script>
+</body>
+</html>
