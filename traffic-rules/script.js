@@ -47,6 +47,19 @@ const imageElement = document.getElementById("question-image");
 const optionsContainer = document.getElementById("options-container");
 const resultElement = document.getElementById("result");
 const nextButton = document.getElementById("next-btn");
+const startButton = document.getElementById("start-btn");
+
+const titleContainer = document.getElementById("title-container");
+const quizContainer = document.getElementById("quiz-container");
+
+// 開始ボタンがクリックされたときの処理
+startButton.addEventListener("click", function() {
+  titleContainer.style.display = "none"; // 開始ボタンを非表示
+  quizContainer.style.display = "block"; // クイズコンテナを表示
+
+  // ここにクイズの初期化処理を記述する（例：loadQuestion();）
+  loadQuestion();
+});
 
 function loadQuestion() {
 
