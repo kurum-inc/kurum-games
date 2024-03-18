@@ -1,0 +1,79 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1, h2 {
+    text-align: center;
+  }
+  
+  #question-container {
+    margin-bottom: 20px;
+  }
+
+  #question-image-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  #question-image {
+    max-width: 400px; /* 幅を固定する場合、適切な幅を指定してください */
+  }
+  
+  .option {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #result {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .correct-label {
+    color: #28a745; /* 正解のラベルのテキスト色 */
+  }
+  
+  .incorrect-label {
+    color: #dc3545; /* 不正解のラベルのテキスト色 */
+  }
+
+  .correct {
+    background-color: #28a745; /* 正解のボタンの背景色 */
+    color: #fff; /* 正解のボタンのテキスト色 */
+  }
+  
+  .incorrect {
+    background-color: #dc3545; /* 不正解のボタンの背景色 */
+    color: #fff; /* 不正解のボタンのテキスト色 */
+  }
+  
+  #next-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #next-btn:hover {
+    background-color: #0056b3;
+  }
+  
