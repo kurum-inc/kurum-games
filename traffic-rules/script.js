@@ -126,7 +126,7 @@ function nextQuestion() {
 
 function showResults() {
     questionElement.textContent = "クイズ終了";
-    imageElement.src = ""; // イラストを非表示にするため空のパスを設定
+    imageElement.style.display = "none";
     optionsContainer.innerHTML = "";
     resultElement.textContent = `あなたのスコアは ${score} / ${quizData.length} です。`;
     nextButton.style.display = "none";

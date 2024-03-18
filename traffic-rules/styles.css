@@ -37,6 +37,7 @@ h2 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 25px;
 }
 
 #start-btn:hover {
@@ -107,6 +108,8 @@ h2 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 20px;
+  font-size: 25px;
 }
 
 #next-btn:hover {
