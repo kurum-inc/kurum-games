@@ -65,11 +65,13 @@ h2 {
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 20px;
 }
 
 #result {
   text-align: center;
   margin-bottom: 20px;
+  font-size: 30px;
 }
 
 .correct-label {
