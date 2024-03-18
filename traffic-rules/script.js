@@ -120,8 +120,6 @@ function nextQuestion() {
         resultElement.textContent = "";
         nextButton.style.display = "none";
     } else {
-
-
         showResults();
     }
 }
