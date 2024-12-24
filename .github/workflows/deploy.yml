@@ -1,0 +1,38 @@
+name: Build and Deploy Subdirectory
+
+on:
+  push:
+    branches:
+      - main # メインブランチの名前に合わせて変更
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Node.jsのセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # 使用するNode.jsのバージョン
+
+      # サブディレクトリに移動して依存関係をインストール
+      - name: Install dependencies
+        working-directory: ./run-senapi # サブディレクトリのパス
+        run: npm install
+
+      # サブディレクトリでビルド
+      - name: Build project
+        working-directory: ./run-senpai
+        run: npm run build
+
+      # ビルド結果をGitHub Pagesにデプロイ
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./run-senpai/dist # ビルド出力先（変更する場合あり）
