@@ -22,7 +22,7 @@ jobs:
 
       # サブディレクトリに移動して依存関係をインストール
       - name: Install dependencies
-        working-directory: ./run-senapi # サブディレクトリのパス
+        working-directory: ./run-senpai
         run: npm install
 
       # サブディレクトリでビルド
