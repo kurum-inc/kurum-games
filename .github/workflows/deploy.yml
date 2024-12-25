@@ -41,6 +41,8 @@ jobs:
       - name: Build project
         working-directory: ./run-senpai
         run: npm run build
+        env:
+          VITE_PUBLIC_URL: "https://kurum-inc.github.io/kurum-games/run-senpai/"
 
       # github pages用の資材を作成
       - name: Archive artifact
@@ -50,6 +52,7 @@ jobs:
           mv ./index.html deploy/
           mv ./images deploy/
           mv ./run-senpai/dist deploy/run-senpai
+          mv ./run-senpai/public/* deploy/run-senpai/
           mv ./nervous-breakdown deploy/
           mv ./edamame deploy/
           tar \
