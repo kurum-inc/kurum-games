@@ -11,9 +11,35 @@ import { GameTitle } from './GameTitle';
 
 export const Game = () => {
 
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+
+  const [groundY, setGroundY] = useState(
+    dimensions.height - CONSTANTS.BLOCK_HEIGHT - 48
+  );
+
+  // const GROUND_Y = dimensions.height - CONSTANTS.BLOCK_HEIGHT - 48; // 48pxはキャラクターの表示位置の調整値
+
   const VISIBLE_BLOCKS = Math.ceil(window.innerWidth / CONSTANTS.BLOCK_WIDTH) + 1;
 
-  const [playerPosition, setPlayerPosition] = useState({ x: 100, y: CONSTANTS.GROUND_Y });
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      setDimensions({ width, height });
+      
+      setGroundY(height - CONSTANTS.BLOCK_HEIGHT - 48);
+      // プレイヤーの位置も更新
+      setPlayerPosition(prev => ({ ...prev, y: height - CONSTANTS.BLOCK_HEIGHT - 48 }));
+    };
+  
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const [playerPosition, setPlayerPosition] = useState({ x: 100, y: groundY });
   const [gameScore, setGameScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
@@ -47,7 +73,7 @@ export const Game = () => {
     setGameStarted(true);
     setGameOver(false);
     setGameScore(0);
-    setPlayerPosition({ x: 100, y: CONSTANTS.GROUND_Y });
+    setPlayerPosition({ x: 100, y: groundY });
     velocityRef.current = 0;
     isJumpingRef.current = false;
     lastTimeRef.current = 0;
@@ -55,20 +81,22 @@ export const Game = () => {
   }, [playBGM]);
 
   const resetGame = useCallback(() => {
-    setPlayerPosition({ x: 100, y: CONSTANTS.GROUND_Y });
+    setPlayerPosition({ x: 100, y: groundY });
     setGameScore(0);
     setGameOver(false);
     setGameStarted(false);
+    setRunPhase(0); // ランフェーズをリセット
     setSignPosition(50);
     setBuildingsPosition(0);
     velocityRef.current = 0;
     isJumpingRef.current = false;
+    lastTimeRef.current = 0; // lastTimeRefもリセット
     setGroundBlocks(Array(VISIBLE_BLOCKS).fill(null).map((_, index) => ({
       x: index * CONSTANTS.BLOCK_WIDTH,
       type: 'ground'
     })));
     pauseBGM();
-  }, []);
+  }, [groundY, pauseBGM]);
 
   const gameLoop = useCallback((timestamp) => {
     if (!lastTimeRef.current) lastTimeRef.current = timestamp;
@@ -87,11 +115,11 @@ export const Game = () => {
       );
 
       if (currentBlock) {
-        if (currentBlock.type === 'ground' && newY >= CONSTANTS.GROUND_Y) {
-          newY = CONSTANTS.GROUND_Y;
+        if (currentBlock.type === 'ground' && newY >= groundY) {
+          newY = groundY;
           velocityRef.current = 0;
           isJumpingRef.current = false;
-        } else if (currentBlock.type === 'hole' && newY >= CONSTANTS.GROUND_Y + CONSTANTS.BLOCK_HEIGHT) {
+        } else if (currentBlock.type === 'hole' && newY >= groundY + CONSTANTS.BLOCK_HEIGHT) {
           setGameOver(true);
         }
       }
@@ -154,7 +182,14 @@ export const Game = () => {
   }, [pauseBGM]);
 
   return (
-    <div className="relative w-full h-96 bg-blue-500 overflow-hidden" onClick={handleJump}>
+    <div 
+    className="relative bg-blue-500 overflow-hidden" 
+    style={{ 
+      width: '100vw', 
+      height: '100vh' 
+    }} 
+    onClick={handleJump}
+  >
       <Sky />
       <BackgroundScene
         gameStarted={gameStarted}
@@ -219,20 +254,20 @@ export const Game = () => {
 
       {/* Player */}
       <div
-        className="absolute w-16 h-16 transition-transform"
-        style={{
-          transform: `translate(${playerPosition.x}px, ${playerPosition.y}px) ${
-            isJumpingRef.current ? `rotate(${velocityRef.current * 2}deg)` : ''
-          }`,
-          zIndex: 10,
-          transformOrigin: 'center bottom'
-        }}
-      >
-        <HamsterCharacter 
-          isJumping={isJumpingRef.current} 
-          runPhase={runPhase}
-        />
-      </div>
+  className="absolute w-16 h-16 transition-transform"
+  style={{
+    transform: `translate(${playerPosition.x}px, ${playerPosition.y}px) ${
+      isJumpingRef.current ? `rotate(${velocityRef.current * 2}deg)` : ''
+    }`,
+    zIndex: 10,
+    transformOrigin: 'center bottom'
+  }}
+>
+  <HamsterCharacter 
+    isJumping={isJumpingRef.current} 
+    runPhase={runPhase}
+  />
+</div>
 
       {/* Game Over */}
       {gameOver && (
