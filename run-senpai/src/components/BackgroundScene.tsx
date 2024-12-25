@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
 
-import { Person, Actor, PersonType, Building, BuildingType, Store, Skyscraper } from './Buildings';
+import { Building, BuildingType, Store, Skyscraper } from './Buildings';
+import { Person, Actor, PersonType } from './Person';
 
 // ... (既存の型定義とPerson, Store, Skyscraperコンポーネント) ...
 
