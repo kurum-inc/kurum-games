@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
 
 // 型定義
-type PersonType = 'walking' | 'standing' | 'student' | 'business';
-type BuildingType = 'skyscraper' | 'restaurant' | 'cafe' | 'shop';
+export type PersonType = 'walking' | 'standing' | 'student' | 'business';
+export type BuildingType = 'skyscraper' | 'restaurant' | 'cafe' | 'shop';
 
-interface Person {
+export interface Person {
   type: PersonType;
   baseX: number;
 }
 
-interface Building {
+export interface Building {
   type: BuildingType;
   baseX: number;
   height?: number;
@@ -27,18 +27,18 @@ interface PersonComponentProps {
   type: PersonType;
 }
 
-interface StoreProps {
+export interface StoreProps {
   x: number;
   type: 'restaurant' | 'cafe' | 'shop';
 }
 
-interface SkyscraperProps {
+export interface SkyscraperProps {
   x: number;
   height?: number;
 }
 
 // コンポーネント定義
-const Person = memo(({ x, type }: PersonComponentProps) => {
+export const Actor = memo(({ x, type }: PersonComponentProps) => {
   const getColor = () => {
     switch (type) {
       case 'walking': return '#2B6CB0';
@@ -101,7 +101,7 @@ const Person = memo(({ x, type }: PersonComponentProps) => {
   );
 });
 
-const Store = memo(({ x, type }: StoreProps) => {
+export const Store = memo(({ x, type }: StoreProps) => {
   const colors = {
     restaurant: { main: '#f56565', accent: '#e53e3e' },
     cafe: { main: '#4299e1', accent: '#3182ce' },
@@ -144,7 +144,7 @@ const Store = memo(({ x, type }: StoreProps) => {
   );
 });
 
-const Skyscraper = memo(({ x, height = 120 }: SkyscraperProps) => {
+export const Skyscraper = memo(({ x, height = 120 }: SkyscraperProps) => {
   return (
     <div className="absolute" style={{ transform: `translateX(${x}px)`, bottom: '32px', zIndex: 2 }}>
       <div style={{ 
@@ -194,7 +194,7 @@ const BackgroundObjects = memo(({ position, people, buildings}: BackgroundObject
         const currentX = person.baseX + position;
         if (currentX > -50 && currentX < windowWidth + 50) {
           return (
-            <Person
+            <Actor
               key={`person-${index}`}
               x={currentX}
               type={person.type}

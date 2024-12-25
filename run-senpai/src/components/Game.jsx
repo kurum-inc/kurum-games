@@ -4,7 +4,8 @@ import { HamsterCharacter } from './HamsterCharacter';
 import { StationSign } from './StationSign';
 import { useAudio } from '../hooks/useAudio';
 import { Sky } from './Sky';
-import { Buildings } from './Buildings';
+import {BackgroundScene} from './BackgroundScene';
+import { GameObstacles } from './GameObstacles';
 // import { useCloudAnimation } from './Sky';
 
 export const Game = () => {
@@ -43,8 +44,14 @@ export const Game = () => {
 
   const startGame = useCallback(() => {
     setGameStarted(true);
+    setGameOver(false);
+    setGameScore(0);
+    setPlayerPosition({ x: 100, y: CONSTANTS.GROUND_Y });
+    velocityRef.current = 0;
+    isJumpingRef.current = false;
+    lastTimeRef.current = 0;
     playBGM();
-  }, []);
+  }, [playBGM]);
 
   const resetGame = useCallback(() => {
     setPlayerPosition({ x: 100, y: CONSTANTS.GROUND_Y });
@@ -139,10 +146,26 @@ export const Game = () => {
     };
   }, [gameLoop]);
 
+  // 衝突時の処理
+  const handleCollision = useCallback(() => {
+    setGameOver(true);
+    pauseBGM();
+  }, [pauseBGM]);
+
   return (
     <div className="relative w-full h-96 bg-blue-500 overflow-hidden" onClick={handleJump}>
       <Sky />
-      <Buildings />
+      <BackgroundScene
+        gameStarted={gameStarted}
+        gameOver={gameOver}
+      />
+      <GameObstacles 
+        gameStarted={gameStarted} 
+        gameOver={gameOver}
+        onCollision={handleCollision}
+        playerPosition={playerPosition}
+      />
+
       {/* Score */}
       {gameStarted && (
         <div className="absolute top-4 left-4 text-2xl font-bold text-white">
