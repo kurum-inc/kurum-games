@@ -47,6 +47,7 @@ jobs:
         run: |
           mkdir -p $RUNNER_TEMP
           mkdir ./deploy
+          mv ./index.html deploy/
           mv ./images deploy/
           mv ./run-senpai/dist deploy/run-senpai
           mv ./nervous-breakdown deploy/
