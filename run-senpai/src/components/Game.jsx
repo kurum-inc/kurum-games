@@ -54,6 +54,7 @@ export const Game = () => {
   );
   const { play: playBGM, pause: pauseBGM } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/bgm.mp3`, { loop: true });
   const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`);
+  const { play: gameOverSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/gameover.mp3`);
   
   const velocityRef = useRef(0);
   const isJumpingRef = useRef(false);
@@ -120,7 +121,7 @@ export const Game = () => {
           velocityRef.current = 0;
           isJumpingRef.current = false;
         } else if (currentBlock.type === 'hole' && newY >= groundY + CONSTANTS.BLOCK_HEIGHT) {
-          setGameOver(true);
+          handleCollision();
         }
       }
 
@@ -179,7 +180,8 @@ export const Game = () => {
   const handleCollision = useCallback(() => {
     setGameOver(true);
     pauseBGM();
-  }, [pauseBGM]);
+    gameOverSound();
+  }, [setGameOver, pauseBGM, gameOverSound]);
 
   return (
     <div 

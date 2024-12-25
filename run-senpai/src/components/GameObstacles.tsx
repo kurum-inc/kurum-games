@@ -50,19 +50,19 @@ export const GameObstacles: React.FC<GameObstaclesProps> = ({
   
   const checkCollisions = useCallback(() => {
     const playerRect = {
-      left: playerPosition.x + 16,
-      right: playerPosition.x + 48,
-      top: playerPosition.y,
-      bottom: playerPosition.y + 58
+      left: playerPosition.x + 20,    // プレイヤーの実際の表示サイズに合わせて調整
+      right: playerPosition.x + 44,   // 64pxの幅から、余白を考慮して調整
+      top: playerPosition.y + 10,     // 上部の余白を考慮
+      bottom: playerPosition.y + 54   // 64pxの高さから、余白を考慮して調整
     };
   
     obstacles.forEach(obstacle => {
       const obstacleX = obstacle.baseX + position;
       const obstacleRect = {
-        left: obstacleX + 6,     // 調整
-        right: obstacleX + 26,   // 調整
-        top: 280,
-        bottom: 320
+        left: obstacleX + 10,      // ドッグの実際の表示サイズに合わせて調整
+        right: obstacleX + 50,     // ドッグの実際の表示サイズに合わせて調整
+        top: window.innerHeight - 120,  // 地面からの高さを考慮
+        bottom: window.innerHeight - 60  // ドッグの高さを考慮
       };
   
       if (
