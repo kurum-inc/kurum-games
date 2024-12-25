@@ -7,7 +7,6 @@ import { Sky } from './Sky';
 import {BackgroundScene} from './BackgroundScene';
 import { GameObstacles } from './GameObstacles';
 import { GameTitle } from './GameTitle';
-import { StartScreen } from './StartScreen';
 // import { useCloudAnimation } from './Sky';
 
 export const Game = () => {

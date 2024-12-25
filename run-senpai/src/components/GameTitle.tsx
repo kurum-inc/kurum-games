@@ -11,7 +11,7 @@ export const GameTitle = () => {
         if (window.innerWidth < 640) {
           setFontSize({
             go: '32px',
-            kurumu: '32px'
+            kurumu: '31px'
           });
         } else {
           setFontSize({
@@ -47,7 +47,7 @@ export const GameTitle = () => {
           animation: 'bounce 0.5s infinite alternate, colorChange 2s infinite',
           animationDelay: '0.25s'
         }}>
-          くるむセンパイ!
+          くるむセンパイ
         </div>
         <style>
           {`
