@@ -25,23 +25,24 @@ jobs:
         with:
           node-version: 16 # 使用するNode.jsのバージョン
 
+      # 説明ページ用のREADMEをHTMLに変換
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
       - name: Convert README.md to index.html
         run: |
           pandoc README.md -f markdown -t html -o index.html
 
-      # サブディレクトリに移動して依存関係をインストール
+      # 走れ！くるむセンパイのビルド（プロジェクトごとにビルドが必要な場合は追加していく）
       - name: Install dependencies
         working-directory: ./run-senpai
         run: npm install
-
-      # サブディレクトリでビルド
       - name: Build project
         working-directory: ./run-senpai
         run: npm run build
 
-      - name: Debug Check build output
-        run: ls -l
-
+      # github pages用の資材を作成
       - name: Archive artifact
         run: |
           mkdir -p $RUNNER_TEMP
@@ -55,9 +56,7 @@ jobs:
             -cvf $RUNNER_TEMP/artifact.tar \
             .
 
-      - name: Check archive
-        run: ls -l $RUNNER_TEMP  # アーカイブ内容の確認
-
+      # github pages用の資材をアップロード
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
