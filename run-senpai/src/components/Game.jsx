@@ -23,7 +23,8 @@ export const Game = () => {
       type: 'ground'
     }))
   );
-  const { play: playBGM, pause: pauseBGM } = useAudio('/bgm.mp3');  // BGMファイルのパスを指定
+  const { play: playBGM, pause: pauseBGM } = useAudio('/bgm.mp3', { loop: true });
+  const { play: playJumpSound } = useAudio('/jump.wav')
   
   const velocityRef = useRef(0);
   const isJumpingRef = useRef(false);
@@ -35,8 +36,9 @@ export const Game = () => {
     if (!isJumpingRef.current && !gameOver) {
       velocityRef.current = CONSTANTS.JUMP_FORCE;
       isJumpingRef.current = true;
+      playJumpSound();
     }
-  }, [gameOver, gameStarted]);
+  }, [gameOver, gameStarted, playJumpSound]);
 
   const startGame = useCallback(() => {
     setGameStarted(true);
