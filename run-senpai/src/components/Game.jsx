@@ -3,7 +3,8 @@ import { CONSTANTS } from '../constants';
 import { HamsterCharacter } from './HamsterCharacter';
 import { StationSign } from './StationSign';
 import { useAudio } from '../hooks/useAudio';
-// import { Buildings } from './Buildings';
+import { Sky } from './Sky';
+import { Buildings } from './Buildings';
 // import { useCloudAnimation } from './Sky';
 
 export const Game = () => {
@@ -140,7 +141,8 @@ export const Game = () => {
 
   return (
     <div className="relative w-full h-96 bg-blue-500 overflow-hidden" onClick={handleJump}>
-
+      <Sky />
+      <Buildings />
       {/* Score */}
       {gameStarted && (
         <div className="absolute top-4 left-4 text-2xl font-bold text-white">

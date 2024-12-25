@@ -1,7 +1,23 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
-const Cloud = ({ x, y }: { x: number; y: number }) => (
-  <div className="absolute pixelated" style={{ left: `${x}px`, top: `${y}px`, zIndex: 1 }}>
+interface Cloud {
+  id: number;
+  x: number;
+  y: number;
+  speed: number;
+  scale: number;
+}
+
+const CloudSprite = ({ x, y, scale }: { x: number; y: number; scale: number }) => (
+  <div 
+    className="absolute pixelated" 
+    style={{ 
+      left: `${x}px`, 
+      top: `${y}px`, 
+      transform: `scale(${scale})`,
+      zIndex: 1 
+    }}
+  >
     <div style={{ 
       width: '32px', 
       height: '16px', 
@@ -20,74 +36,54 @@ const Cloud = ({ x, y }: { x: number; y: number }) => (
   </div>
 );
 
-interface SkyProps {
-  updateClouds: (deltaTime: number) => void;
-}
-
 export const Sky: React.FC = () => {
-  const [clouds, setClouds] = useState(() => 
-    Array(5).fill(0).map(() => ({
+  const [clouds, setClouds] = useState<Cloud[]>(() => 
+    Array(5).fill(0).map((_, index) => ({
+      id: index,
       x: Math.random() * window.innerWidth,
-      y: Math.random() * 100,
-      speed: 0.5 + Math.random() * 0.5
+      y: Math.random() * 150,
+      speed: 0.3 + Math.random() * 0.3,
+      scale: 0.8 + Math.random() * 0.4
     }))
   );
 
-  const updateCloudsPosition = (deltaTime: number) => {
+  const updateClouds = useCallback(() => {
     setClouds(prevClouds => 
       prevClouds.map(cloud => {
         let newX = cloud.x - cloud.speed;
+        
+        // 画面外に出た場合
         if (newX < -50) {
-          newX = window.innerWidth + 50;
-          if (Math.random() < 0.3) {
-            return {
-              x: newX,
-              y: Math.random() * 100,
-              speed: 0.5 + Math.random() * 0.5
-            };
-          }
+          // 右端から新しい雲として登場
+          return {
+            ...cloud,
+            x: window.innerWidth + 50,
+            y: Math.random() * 150,
+            speed: 0.3 + Math.random() * 0.3,
+            scale: 0.8 + Math.random() * 0.4
+          };
         }
-        return { ...cloud, x: newX };
-      })
-    );
-  };
-
-  return (
-    <div className="absolute inset-0 z-0">
-      {clouds.map((cloud, index) => (
-        <Cloud key={index} x={cloud.x} y={cloud.y} />
-      ))}
-    </div>
-  );
-};
-
-export const useCloudAnimation = () => {
-  const [clouds, setClouds] = useState(() => 
-    Array(5).fill(0).map(() => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * 100,
-      speed: 0.5 + Math.random() * 0.5
-    }))
-  );
-
-  const updateClouds = useCallback((deltaTime: number) => {
-    setClouds(prevClouds => 
-      prevClouds.map(cloud => {
-        let newX = cloud.x - cloud.speed;
-        if (newX < -50) {
-          newX = window.innerWidth + 50;
-          if (Math.random() < 0.3) {
-            return {
-              x: newX,
-              y: Math.random() * 100,
-              speed: 0.5 + Math.random() * 0.5
-            };
-          }
-        }
+        
         return { ...cloud, x: newX };
       })
     );
   }, []);
 
-  return { clouds, updateClouds };
+  useEffect(() => {
+    const interval = setInterval(updateClouds, 50);
+    return () => clearInterval(interval);
+  }, [updateClouds]);
+
+  return (
+    <div className="absolute inset-0 z-0">
+      {clouds.map(cloud => (
+        <CloudSprite 
+          key={cloud.id} 
+          x={cloud.x} 
+          y={cloud.y} 
+          scale={cloud.scale}
+        />
+      ))}
+    </div>
+  );
 };
