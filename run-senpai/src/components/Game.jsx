@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CONSTANTS } from '../constants';
 import { HamsterCharacter } from './HamsterCharacter';
 import { StationSign } from './StationSign';
+import { useAudio } from '../hooks/useAudio';
 // import { Buildings } from './Buildings';
 // import { useCloudAnimation } from './Sky';
 
@@ -22,6 +23,7 @@ export const Game = () => {
       type: 'ground'
     }))
   );
+  const { play: playBGM, pause: pauseBGM } = useAudio('/bgm.mp3');  // BGMファイルのパスを指定
   
   const velocityRef = useRef(0);
   const isJumpingRef = useRef(false);
@@ -38,6 +40,7 @@ export const Game = () => {
 
   const startGame = useCallback(() => {
     setGameStarted(true);
+    playBGM();
   }, []);
 
   const resetGame = useCallback(() => {
@@ -53,6 +56,7 @@ export const Game = () => {
       x: index * CONSTANTS.BLOCK_WIDTH,
       type: 'ground'
     })));
+    pauseBGM();
   }, []);
 
   const gameLoop = useCallback((timestamp) => {
