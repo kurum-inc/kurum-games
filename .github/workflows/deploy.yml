@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: 16 # 使用するNode.jsのバージョン
 
+      - name: Convert README.md to index.html
+        run: |
+          pandoc README.md -f markdown -t html -o index.html
+
       # サブディレクトリに移動して依存関係をインストール
       - name: Install dependencies
         working-directory: ./run-senpai
@@ -42,6 +46,7 @@ jobs:
         run: |
           mkdir -p $RUNNER_TEMP
           mkdir ./deploy
+          mv ./images deploy/
           mv ./run-senpai/dist deploy/run-senpai
           mv ./nervous-breakdown deploy/
           mv ./edamame deploy/
