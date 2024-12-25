@@ -6,6 +6,8 @@ import { useAudio } from '../hooks/useAudio';
 import { Sky } from './Sky';
 import {BackgroundScene} from './BackgroundScene';
 import { GameObstacles } from './GameObstacles';
+import { GameTitle } from './GameTitle';
+import { StartScreen } from './StartScreen';
 // import { useCloudAnimation } from './Sky';
 
 export const Game = () => {
@@ -173,16 +175,25 @@ export const Game = () => {
         </div>
       )}
 
-      {/* Start Button */}
       {!gameStarted && !gameOver && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <button
-            onClick={startGame}
-            className="px-8 py-4 bg-green-500 text-white text-2xl font-bold rounded-lg hover:bg-green-600 transition-colors"
-          >
-            START!
-          </button>
-        </div>
+        <>
+          <GameTitle />
+          <div className="absolute inset-0 flex items-center justify-center" style={{ paddingTop: '200px' }}>
+     <button
+       onClick={(e) => {
+         e.stopPropagation();
+         startGame();
+       }}
+       className="px-8 py-4 bg-green-500 text-white text-2xl font-bold rounded-lg hover:bg-green-600 transition-colors"
+       style={{
+         textShadow: '2px 2px 0 #000',
+         border: '4px solid #000'
+       }}
+     >
+       START!
+     </button>
+   </div>
+        </>
       )}
 
       {/* Station Sign */}
