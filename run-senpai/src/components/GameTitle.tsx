@@ -11,7 +11,7 @@ export const GameTitle = () => {
         if (window.innerWidth < 640) {
           setFontSize({
             go: '32px',
-            kurumu: '31px'
+            kurumu: '30px'
           });
         } else {
           setFontSize({
