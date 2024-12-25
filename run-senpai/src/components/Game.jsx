@@ -39,6 +39,7 @@ export const Game = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const [level, setLevel] = useState(1);
   const [playerPosition, setPlayerPosition] = useState({ x: 100, y: groundY });
   const [gameScore, setGameScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -55,7 +56,7 @@ export const Game = () => {
   const { play: playBGM, pause: pauseBGM } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/bgm.mp3`, { loop: true });
   const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`);
   const { play: gameOverSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/gameover.mp3`);
-  
+
   const velocityRef = useRef(0);
   const isJumpingRef = useRef(false);
   const lastTimeRef = useRef(0);
@@ -84,6 +85,7 @@ export const Game = () => {
   const resetGame = useCallback(() => {
     setPlayerPosition({ x: 100, y: groundY });
     setGameScore(0);
+    setLevel(1); 
     setGameOver(false);
     setGameStarted(false);
     setRunPhase(0); // ランフェーズをリセット
@@ -126,7 +128,16 @@ export const Game = () => {
       }
 
       setPlayerPosition(prev => ({ ...prev, y: newY }));
-      setGameScore(prev => prev + deltaTime * 0.01);
+
+      setGameScore(prev => {
+        const newScore = prev + deltaTime * 0.01;
+        // レベルの更新チェック
+        const newLevel = Math.floor(newScore / 100) + 1;
+        if (newLevel !== level) {
+          setLevel(newLevel);
+        }
+        return newScore;
+      });
 
       // スクロール速度の計算
       const scrollSpeed = deltaTime * 0.3;
