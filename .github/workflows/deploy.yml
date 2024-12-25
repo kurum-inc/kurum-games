@@ -35,4 +35,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./run-senpai/dist # ビルド出力先（変更する場合あり）
+          publish_dir: ./run-senpai/dist
