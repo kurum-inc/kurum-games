@@ -24,8 +24,8 @@ export const Game = () => {
       type: 'ground'
     }))
   );
-  const { play: playBGM, pause: pauseBGM } = useAudio(`${import.meta.env.VITE_PUBLIC_URL}/bgm.mp3`, { loop: true });
-  const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL}/jump.wav`);
+  const { play: playBGM, pause: pauseBGM } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/bgm.mp3`, { loop: true });
+  const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`);
   
   const velocityRef = useRef(0);
   const isJumpingRef = useRef(false);
