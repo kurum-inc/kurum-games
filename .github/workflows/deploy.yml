@@ -5,8 +5,13 @@ on:
     branches:
       - main # メインブランチの名前に合わせて変更
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
 jobs:
-  build-and-deploy:
+  build-and-upload:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,9 +35,41 @@ jobs:
         working-directory: ./run-senpai
         run: npm run build
 
-      # ビルド結果をGitHub Pagesにデプロイ
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Debug Check build output
+        run: ls -l
+
+      - name: Archive artifact
+        run: |
+          mkdir -p $RUNNER_TEMP
+          mkdir ./deploy
+          mv ./run-senpai/dist deploy/run-senpai
+          mv ./nervous-breakdown deploy/
+          mv ./edamame deploy/
+          tar \
+            --directory ./deploy \
+            -cvf $RUNNER_TEMP/artifact.tar \
+            .
+
+      - name: Check archive
+        run: ls -l $RUNNER_TEMP  # アーカイブ内容の確認
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./run-senpai/dist
+          name: github-pages
+          path: /home/runner/work/_temp/artifact.tar
+          retention-days: 1
+
+  deploy:
+    needs: build-and-upload
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+          preview: false
