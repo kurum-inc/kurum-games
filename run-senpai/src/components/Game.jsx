@@ -166,8 +166,18 @@ export const Game = () => {
     gameOverSound();
   }, [setGameOver, pauseBGM, gameOverSound]);
 
-  return (
-    <div className="relative w-full h-96 bg-blue-500 overflow-hidden" onClick={handleJump}>
+// Game.tsxのreturn部分を修正
+
+return (
+  <div className="w-full h-screen flex items-center justify-center bg-gray-900 pb-8">
+    <div 
+      className="relative w-full h-96 bg-blue-500 overflow-hidden" 
+      onClick={handleJump}
+      onTouchStart={(e) => {
+        e.preventDefault();
+        handleJump();
+      }}
+    >
       <Sky />
       <BackgroundScene
         gameStarted={gameStarted}
@@ -265,6 +275,7 @@ export const Game = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
