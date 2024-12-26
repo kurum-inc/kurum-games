@@ -4,37 +4,51 @@ import { HamsterCharacter } from './HamsterCharacter';
 import { StationSign } from './StationSign';
 import { useAudio } from '../hooks/useAudio';
 import { Sky } from './Sky';
-import {BackgroundScene} from './BackgroundScene';
+import { BackgroundScene } from './BackgroundScene';
 import { GameObstacles } from './GameObstacles';
 import { GameTitle } from './GameTitle';
-// import { useCloudAnimation } from './Sky';
 
-export const Game = () => {
+interface Position {
+  x: number;
+  y: number;
+}
 
+interface GroundBlock {
+  x: number;
+  type: 'ground' | 'hole';
+}
+
+interface AudioControl {
+  play: () => void;
+  pause: () => void;
+}
+
+export const Game: React.FC = () => {
   const VISIBLE_BLOCKS = Math.ceil(window.innerWidth / CONSTANTS.BLOCK_WIDTH) + 1;
 
-  const [level, setLevel] = useState(1);
-  const [playerPosition, setPlayerPosition] = useState({ x: 100, y: CONSTANTS.GROUND_Y });
-  const [gameScore, setGameScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [runPhase, setRunPhase] = useState(0);
-  const [signPosition, setSignPosition] = useState(50);
-  const [buildingsPosition, setBuildingsPosition] = useState(0);
-  const [groundBlocks, setGroundBlocks] = useState(() => 
+  const [level, setLevel] = useState<number>(1);
+  const [playerPosition, setPlayerPosition] = useState<Position>({ x: 100, y: CONSTANTS.GROUND_Y });
+  const [gameScore, setGameScore] = useState<number>(0);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [runPhase, setRunPhase] = useState<number>(0);
+  const [signPosition, setSignPosition] = useState<number>(50);
+  const [buildingsPosition, setBuildingsPosition] = useState<number>(0);
+  const [groundBlocks, setGroundBlocks] = useState<GroundBlock[]>(() => 
     Array(VISIBLE_BLOCKS).fill(null).map((_, index) => ({
       x: index * CONSTANTS.BLOCK_WIDTH,
       type: 'ground'
     }))
   );
-  const { play: playBGM, pause: pauseBGM } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/bgm.mp3`, { loop: true });
-  const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`);
-  const { play: gameOverSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/gameover.mp3`);
 
-  const velocityRef = useRef(0);
-  const isJumpingRef = useRef(false);
-  const lastTimeRef = useRef(0);
-  const animationFrameRef = useRef(null);
+  const { play: playBGM, pause: pauseBGM } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/bgm.mp3`, { loop: true }) as AudioControl;
+  const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`) as AudioControl;
+  const { play: gameOverSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/gameover.mp3`) as AudioControl;
+
+  const velocityRef = useRef<number>(0);
+  const isJumpingRef = useRef<boolean>(false);
+  const lastTimeRef = useRef<number>(0);
+  const animationFrameRef = useRef<number | null>(null);
 
   const handleJump = useCallback(() => {
     if (!gameStarted) return;
@@ -59,7 +73,7 @@ export const Game = () => {
   const resetGame = useCallback(() => {
     setPlayerPosition({ x: 100, y: CONSTANTS.GROUND_Y });
     setGameScore(0);
-    setLevel(1); 
+    setLevel(1);
     setGameOver(false);
     setGameStarted(false);
     setSignPosition(50);
@@ -68,12 +82,18 @@ export const Game = () => {
     isJumpingRef.current = false;
     setGroundBlocks(Array(VISIBLE_BLOCKS).fill(null).map((_, index) => ({
       x: index * CONSTANTS.BLOCK_WIDTH,
-      type: 'ground'
+      type: 'ground' as const
     })));
     pauseBGM();
   }, []);
 
-  const gameLoop = useCallback((timestamp) => {
+  const handleCollision = useCallback(() => {
+    setGameOver(true);
+    pauseBGM();
+    gameOverSound();
+  }, [pauseBGM, gameOverSound]);
+
+  const gameLoop = useCallback((timestamp: number) => {
     if (!lastTimeRef.current) lastTimeRef.current = timestamp;
     const deltaTime = timestamp - lastTimeRef.current;
     lastTimeRef.current = timestamp;
@@ -103,7 +123,6 @@ export const Game = () => {
 
       setGameScore(prev => {
         const newScore = prev + deltaTime * 0.01;
-        // レベルの更新チェック
         const newLevel = Math.floor(newScore / 100) + 1;
         if (newLevel !== level) {
           setLevel(newLevel);
@@ -111,19 +130,11 @@ export const Game = () => {
         return newScore;
       });
 
-      // スクロール速度の計算
       const scrollSpeed = deltaTime * 0.3;
       
-      // 雲のアップデート
-      // updateClouds(deltaTime);
-      
-      // 駅名標のスクロール
       setSignPosition(prev => prev - scrollSpeed);
-      
-      // 建物のスクロール
       setBuildingsPosition(prev => prev - scrollSpeed);
 
-      // 地面ブロックのスクロール
       setGroundBlocks(prev => {
         const newBlocks = prev.map(block => ({
           ...block,
@@ -148,7 +159,7 @@ export const Game = () => {
     }
 
     animationFrameRef.current = requestAnimationFrame(gameLoop);
-  }, [gameOver, gameStarted, playerPosition, groundBlocks]);
+  }, [gameOver, gameStarted, playerPosition, groundBlocks, level, handleCollision]);
 
   useEffect(() => {
     animationFrameRef.current = requestAnimationFrame(gameLoop);
@@ -158,15 +169,6 @@ export const Game = () => {
       }
     };
   }, [gameLoop]);
-
-  // 衝突時の処理
-  const handleCollision = useCallback(() => {
-    setGameOver(true);
-    pauseBGM();
-    gameOverSound();
-  }, [setGameOver, pauseBGM, gameOverSound]);
-
-// Game.tsxのreturn部分を修正
 
 return (
   <div className="w-full h-screen flex items-center justify-center bg-gray-900 pb-8">
@@ -190,7 +192,6 @@ return (
         playerPosition={playerPosition}
       />
 
-      {/* Score */}
       {gameStarted && (
         <div className="absolute top-4 left-4 text-2xl font-bold text-white">
           Score: {Math.floor(gameScore)}
@@ -201,27 +202,25 @@ return (
         <>
           <GameTitle />
           <div className="absolute inset-0 flex items-center justify-center" style={{ paddingTop: '200px' }}>
-     <button
-       onClick={(e) => {
-         e.stopPropagation();
-         startGame();
-       }}
-       className="px-8 py-4 bg-green-500 text-white text-2xl font-bold rounded-lg hover:bg-green-600 transition-colors"
-       style={{
-         textShadow: '2px 2px 0 #000',
-         border: '4px solid #000'
-       }}
-     >
-       START!
-     </button>
-   </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                startGame();
+              }}
+              className="px-8 py-4 bg-green-500 text-white text-2xl font-bold rounded-lg hover:bg-green-600 transition-colors"
+              style={{
+                textShadow: '2px 2px 0 #000',
+                border: '4px solid #000'
+              }}
+            >
+              START!
+            </button>
+          </div>
         </>
       )}
 
-      {/* Station Sign */}
       {signPosition > -100 && <StationSign position={signPosition} />}
 
-      {/* Ground blocks */}
       <div className="absolute bottom-0 left-0 right-0">
         {groundBlocks.map((block, index) => (
           <div
@@ -240,7 +239,6 @@ return (
         ))}
       </div>
 
-      {/* Player */}
       <div
         className="absolute w-16 h-16 transition-transform"
         style={{
@@ -257,7 +255,6 @@ return (
         />
       </div>
 
-      {/* Game Over */}
       {gameOver && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 30 }}>
           <div className="text-center">
