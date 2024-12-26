@@ -1,4 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
 import { CONSTANTS } from '../constants';
 import { HamsterCharacter } from './HamsterCharacter';
 import { StationSign } from './StationSign';
@@ -68,6 +74,14 @@ export const Game: React.FC = () => {
     isJumpingRef.current = false;
     lastTimeRef.current = 0;
     playBGM();
+
+    // ga event tracking
+    if (window.gtag) {
+      window.gtag('event', 'game_start', {
+        event_category: 'game',
+        event_label: 'game_start'
+      });
+    }
   }, [playBGM]);
 
   const resetGame = useCallback(() => {
@@ -85,13 +99,30 @@ export const Game: React.FC = () => {
       type: 'ground' as const
     })));
     pauseBGM();
+
+    // ga event tracking
+    if (window.gtag) {
+      window.gtag('event', 'game_reset', {
+        event_category: 'game',
+        event_label: 'game_reset'
+      });
+    }
   }, []);
 
   const handleCollision = useCallback(() => {
     setGameOver(true);
     pauseBGM();
     gameOverSound();
-  }, [pauseBGM, gameOverSound]);
+
+    // ga event tracking
+    if (window.gtag) {
+      window.gtag('event', 'game_over', {
+        event_category: 'game',
+        event_label: 'game_over',
+        value: Math.floor(gameScore)
+      });
+    }
+  }, [pauseBGM, gameOverSound, gameScore]);
 
   const gameLoop = useCallback((timestamp: number) => {
     if (!lastTimeRef.current) lastTimeRef.current = timestamp;
