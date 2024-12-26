@@ -171,7 +171,7 @@ export const Game: React.FC = () => {
   }, [gameLoop]);
 
 return (
-  <div className="fixed inset-0 overflow-hidden">
+  <div className="w-full h-screen flex items-center justify-center bg-gray-900 pb-8">
     <div 
       className="relative w-full h-96 bg-blue-500 overflow-hidden" 
       onClick={handleJump}
