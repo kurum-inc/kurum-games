@@ -13,6 +13,7 @@ export const Game = () => {
 
   const VISIBLE_BLOCKS = Math.ceil(window.innerWidth / CONSTANTS.BLOCK_WIDTH) + 1;
 
+  const [level, setLevel] = useState(1);
   const [playerPosition, setPlayerPosition] = useState({ x: 100, y: CONSTANTS.GROUND_Y });
   const [gameScore, setGameScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -94,7 +95,7 @@ export const Game = () => {
           velocityRef.current = 0;
           isJumpingRef.current = false;
         } else if (currentBlock.type === 'hole' && newY >= CONSTANTS.GROUND_Y + CONSTANTS.BLOCK_HEIGHT) {
-          setGameOver(true);
+          handleCollision();
         }
       }
 

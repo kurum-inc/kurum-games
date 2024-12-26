@@ -11,7 +11,7 @@ export const GameTitle = () => {
         if (window.innerWidth < 640) {
           setFontSize({
             go: '32px',
-            kurumu: '30px'
+            kurumu: '25px'
           });
         } else {
           setFontSize({
@@ -39,10 +39,10 @@ export const GameTitle = () => {
         </div>
         <div className="title-kurumu" style={{
           fontFamily: "'M PLUS Rounded 1c', sans-serif",
-          fontWeight: 800,
+          // fontWeight: 1000,
           fontSize: fontSize.kurumu,
           color: '#FFD700',
-          WebkitTextStroke: '2px #000',
+          WebkitTextStroke: '1px #000',
           marginTop: '16px',
           animation: 'bounce 0.5s infinite alternate, colorChange 2s infinite',
           animationDelay: '0.25s'
