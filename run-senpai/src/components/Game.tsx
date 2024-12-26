@@ -239,21 +239,12 @@ return (
         ))}
       </div>
 
-      <div
-        className="absolute w-16 h-16 transition-transform"
-        style={{
-          transform: `translate(${playerPosition.x}px, ${playerPosition.y}px) ${
-            isJumpingRef.current ? `rotate(${velocityRef.current * 2}deg)` : ''
-          }`,
-          zIndex: 10,
-          transformOrigin: 'center bottom'
-        }}
-      >
-        <HamsterCharacter 
-          isJumping={isJumpingRef.current} 
-          runPhase={runPhase}
-        />
-      </div>
+      <HamsterCharacter 
+        isJumping={isJumpingRef.current} 
+        runPhase={runPhase}
+        x={playerPosition.x}
+        y={playerPosition.y}
+      />
 
       {gameOver && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 30 }}>
