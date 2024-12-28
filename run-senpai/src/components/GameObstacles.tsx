@@ -48,33 +48,34 @@ export const GameObstacles: React.FC<GameObstaclesProps> = ({
     previousGameOver.current = gameOver;
   }, [gameStarted, gameOver, createInitialObstacles]);
   
-  const checkCollisions = useCallback(() => {
-    const playerRect = {
-      left: playerPosition.x + 20,    // 16 -> 20 (当たり判定を内側に)
-      right: playerPosition.x + 44,   // 48 -> 44 (当たり判定を内側に)
-      top: playerPosition.y + 10,     // 上部の判定を少し下げる
-      bottom: playerPosition.y + 54    // 58 -> 54 (下部の判定を少し上げる)
+// checkCollisions関数の部分のみ表示
+const checkCollisions = useCallback(() => {
+  const playerRect = {
+    left: playerPosition.x + 22,    // 内側に2px移動
+    right: playerPosition.x + 42,   // 内側に2px移動
+    top: playerPosition.y + 12,     // 内側に2px移動
+    bottom: playerPosition.y + 52    // 内側に2px移動
+  };
+
+  obstacles.forEach(obstacle => {
+    const obstacleX = obstacle.baseX + position;
+    const obstacleRect = {
+      left: obstacleX + 8,      // 10 から 8 に変更（小さくなった分だけ当たり判定を調整）
+      right: obstacleX + 16,    // 22 から 16 に変更
+      top: 290,                 // 285 から 290 に変更（より下方に）
+      bottom: 310               // 315 から 310 に変更（より上方に）
     };
-  
-    obstacles.forEach(obstacle => {
-      const obstacleX = obstacle.baseX + position;
-      const obstacleRect = {
-        left: obstacleX + 10,     // 6 -> 10 (当たり判定を内側に)
-        right: obstacleX + 22,    // 26 -> 22 (当たり判定を内側に)
-        top: 285,                 // 280 -> 285 (上部の判定を少し下げる)
-        bottom: 315               // 320 -> 315 (下部の判定を少し上げる)
-      };
-  
-      if (
-        playerRect.right > obstacleRect.left &&
-        playerRect.left < obstacleRect.right &&
-        playerRect.bottom > obstacleRect.top &&
-        playerRect.top < obstacleRect.bottom
-      ) {
-        onCollision();
-      }
-    });
-  }, [obstacles, position, playerPosition, onCollision]);
+
+    if (
+      playerRect.right > obstacleRect.left &&
+      playerRect.left < obstacleRect.right &&
+      playerRect.bottom > obstacleRect.top &&
+      playerRect.top < obstacleRect.bottom
+    ) {
+      onCollision();
+    }
+  });
+}, [obstacles, position, playerPosition, onCollision]);
 
   const updatePosition = useCallback((deltaTime: number) => {
     if (!gameStarted || gameOver) return;
