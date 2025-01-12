@@ -14,7 +14,7 @@ Our company creates a variety of games, all crafted by ChatGPT.
 
 ![nervous-breakdown.png](/kurum-games/images/nervous-breakdown.png)
 
-## 走れ！くるむセンパイ
+## go!go！くるむセンパイ
 
 [https://kurum-inc.github.io/kurum-games/run-senpai/](https://kurum-inc.github.io/kurum-games/run-senpai/)
 
