@@ -55,6 +55,7 @@ export const Game: React.FC = () => {
   const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`) as AudioControl;
   const { play: gameOverSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/gameover.mp3`) as AudioControl;
 
+  const [resultScore, setResultScore] = useState<number>(0); // 当たり判定時にスコア計算がうごいてしまいずれるため、最終結果を保持するstateを追加
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [playerName, setPlayerName] = useLocalStorage<string>('playerName', '');
   const [nameError, setNameError] = useState<string>('');
@@ -148,6 +149,7 @@ export const Game: React.FC = () => {
     }
 
     try {
+      setResultScore(gameScore);
       await saveScore(playerName, gameScore);
       const scores = await getTopScores(10);
       setTopScores(scores);
@@ -337,7 +339,7 @@ return (
         {/* スコア表示とプレイアゲインボタン */}
         <div className="mb-6 text-center">
           <p className="text-xl mb-2">Your Score</p>
-          <p className="text-4xl font-bold text-blue-600 mb-6">{gameScore}</p>
+          <p className="text-4xl font-bold text-blue-600 mb-6">{resultScore}</p>
 
           <button
             onClick={(e) => {
