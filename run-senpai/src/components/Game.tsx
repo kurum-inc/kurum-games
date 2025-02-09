@@ -371,7 +371,7 @@ return (
                   <div
                     key={score.id || index}
                     className={`flex justify-between items-center p-2 rounded ${
-                      score.playerName === playerName && Math.abs(score.score - gameScore) < 0.1
+                      score.playerName === playerName && Math.abs(score.score - resultScore) < 0.1
                         ? 'bg-yellow-100'
                         : 'bg-gray-50'
                     }`}
