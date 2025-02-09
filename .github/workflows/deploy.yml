@@ -19,11 +19,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Node.jsのセットアップ
+      # Node.jsのバージョンを18に設定
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16 # 使用するNode.jsのバージョン
+          node-version: '18'
 
       # 説明ページ用のREADMEをHTMLに変換
       - name: Install pandoc
