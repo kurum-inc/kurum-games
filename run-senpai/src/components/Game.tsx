@@ -13,6 +13,10 @@ import { Sky } from './Sky';
 import { BackgroundScene } from './BackgroundScene';
 import { GameObstacles } from './GameObstacles';
 import { GameTitle } from './GameTitle';
+import { saveScore, getTopScores } from '../firebase';
+import { Score } from '../types';
+import { NicknameModal } from './NicknameModal';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface Position {
   x: number;
@@ -51,6 +55,13 @@ export const Game: React.FC = () => {
   const { play: playJumpSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/jump.wav`) as AudioControl;
   const { play: gameOverSound } = useAudio(`${import.meta.env.VITE_PUBLIC_URL ?? ""}/gameover.mp3`) as AudioControl;
 
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [playerName, setPlayerName] = useLocalStorage<string>('playerName', '');
+  const [nameError, setNameError] = useState<string>('');
+
+  const [topScores, setTopScores] = useState<Score[]>([]);
+  const [isLoadingScores, setIsLoadingScores] = useState(false);
+
   const velocityRef = useRef<number>(0);
   const isJumpingRef = useRef<boolean>(false);
   const lastTimeRef = useRef<number>(0);
@@ -66,6 +77,17 @@ export const Game: React.FC = () => {
   }, [gameOver, gameStarted, playJumpSound]);
 
   const startGame = useCallback(() => {
+    if (!playerName.trim()) {
+      setNameError('ニックネームを入力してください');
+      return;
+    }
+    if (playerName.length > 10) {
+      setNameError('ニックネームは10文字以内で入力してください');
+      return;
+    }
+    
+    setShowNicknameModal(false);
+
     setGameStarted(true);
     setGameOver(false);
     setGameScore(0);
@@ -109,18 +131,30 @@ export const Game: React.FC = () => {
     }
   }, []);
 
-  const handleCollision = useCallback(() => {
+  const handleCollision = useCallback(async() => {
+
     setGameOver(true);
     pauseBGM();
     gameOverSound();
+    setIsLoadingScores(true);
 
     // ga event tracking
     if (window.gtag) {
       window.gtag('event', 'game_over', {
         event_category: 'game',
         event_label: 'game_over',
-        value: Math.floor(gameScore)
+        value: gameScore
       });
+    }
+
+    try {
+      await saveScore(playerName, gameScore);
+      const scores = await getTopScores(10);
+      setTopScores(scores);
+    } catch (error) {
+      // setError('スコアの保存に失敗しました');
+    } finally {
+      setIsLoadingScores(false);
     }
   }, [pauseBGM, gameOverSound, gameScore]);
 
@@ -147,13 +181,14 @@ export const Game: React.FC = () => {
           isJumpingRef.current = false;
         } else if (currentBlock.type === 'hole' && newY >= CONSTANTS.GROUND_Y + CONSTANTS.BLOCK_HEIGHT) {
           handleCollision();
+          return;
         }
       }
 
       setPlayerPosition(prev => ({ ...prev, y: newY }));
 
       setGameScore(prev => {
-        const newScore = prev + deltaTime * 0.01;
+        const newScore = Math.floor(prev + deltaTime * 0.1);
         const newLevel = Math.floor(newScore / 100) + 1;
         if (newLevel !== level) {
           setLevel(newLevel);
@@ -225,7 +260,7 @@ return (
 
       {gameStarted && (
         <div className="absolute top-4 left-4 text-2xl font-bold text-white">
-          Score: {Math.floor(gameScore)}
+          Score: {gameScore}
         </div>
       )}
 
@@ -236,7 +271,7 @@ return (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                startGame();
+                setShowNicknameModal(true);
               }}
               className="px-8 py-4 bg-green-500 text-white text-2xl font-bold rounded-lg hover:bg-green-600 transition-colors"
               style={{
@@ -248,6 +283,18 @@ return (
             </button>
           </div>
         </>
+      )}
+
+      {showNicknameModal && (
+        <NicknameModal
+          playerName={playerName}
+          onNameChange={(name) => {
+            setPlayerName(name);
+            setNameError('');
+          }}
+          onStart={startGame}
+          nameError={nameError}
+        />
       )}
 
       {signPosition > -100 && <StationSign position={signPosition} />}
@@ -276,25 +323,77 @@ return (
         x={playerPosition.x}
         y={playerPosition.y}
       />
+    </div>
 
-      {gameOver && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 30 }}>
-          <div className="text-center">
-            <h2 className="text-white text-4xl mb-4">Game Over!</h2>
-            <p className="text-white text-2xl mb-4">Score: {Math.floor(gameScore)}</p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                resetGame();
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Play Again
-            </button>
-          </div>
+
+
+{gameOver && (
+  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 30 }}>
+    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div className="p-6">
+        {/* ヘッダー部分 */}
+        <h2 className="text-3xl font-bold mb-4 text-center text-gray-800">Game Over!</h2>
+        
+        {/* スコア表示とプレイアゲインボタン */}
+        <div className="mb-6 text-center">
+          <p className="text-xl mb-2">Your Score</p>
+          <p className="text-4xl font-bold text-blue-600 mb-6">{gameScore}</p>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              resetGame();
+            }}
+            className="w-full px-6 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Play Again
+          </button>
         </div>
-      )}
+
+        {/* ランキング部分 */}
+        <div>
+          <h3 className="text-xl font-bold mb-3 text-center">Ranking</h3>
+          {isLoadingScores ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <div className="relative">
+              <div 
+                className="space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100" 
+                style={{ 
+                  height: '200px',
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                {topScores.map((score, index) => (
+                  <div
+                    key={score.id || index}
+                    className={`flex justify-between items-center p-2 rounded ${
+                      score.playerName === playerName && Math.abs(score.score - gameScore) < 0.1
+                        ? 'bg-yellow-100'
+                        : 'bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <span className="font-bold w-8">{index + 1}.</span>
+                      <span className="font-medium">{score.playerName}</span>
+                    </div>
+                    <span className="font-bold">{score.score}</span>
+                  </div>
+                ))}
+
+                {/* スクロールが足りない場合のパディング */}
+                {topScores.length < 5 && (
+                  <div style={{ height: `${(5 - topScores.length) * 48}px` }} />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-    </div>
-  );
-};
+  </div>
+)}
+
+  </div>
+)};
