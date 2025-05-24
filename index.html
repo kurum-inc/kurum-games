@@ -172,35 +172,44 @@
             filter: sepia(20%) saturate(150%);
         }
         
-        .image-caption {
-            color: #FF00FF;
-            font-size: 14px;
-            margin-top: 10px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            text-shadow: 1px 1px #FFFFFF;
-            animation: blink 1s infinite;
-        }
-        
         .separator {
-            text-align: center;
-            font-size: 20px;
-            color: #00FF00;
+            height: 30px;
             margin: 50px 0;
-            letter-spacing: 1px;
-            animation: rainbow-text 2s infinite;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
+            background: linear-gradient(90deg, 
+                #FF0000 0%, #FF8000 16%, #FFFF00 33%, 
+                #00FF00 50%, #0080FF 66%, #8000FF 83%, #FF0000 100%);
+            background-size: 20px 100%;
+            animation: rainbow-move 3s infinite linear;
+            position: relative;
         }
         
-        @keyframes rainbow-text {
-            0% { color: #FF0000; }
-            16% { color: #FF8000; }
-            33% { color: #FFFF00; }
-            50% { color: #00FF00; }
-            66% { color: #0080FF; }
-            83% { color: #8000FF; }
-            100% { color: #FF0000; }
+        .separator::before {
+            content: "◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px #000000;
+            color: #FFFFFF;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: scroll-text 5s infinite linear;
+        }
+        
+        @keyframes rainbow-move {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+        
+        @keyframes scroll-text {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
         
         .footer {
@@ -214,6 +223,41 @@
             font-size: 16px;
             text-shadow: 2px 2px #000000;
             animation: flash 1s infinite;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                #FFFFFF 0px,
+                #FFFFFF 6px,
+                transparent 6px,
+                transparent 12px
+            );
+            opacity: 0.7;
+        }
+        
+        .footer::after {
+            content: "";
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                #FFFFFF 0px,
+                #FFFFFF 6px,
+                transparent 6px,
+                transparent 12px
+            );
+            opacity: 0.7;
         }
         
         @keyframes flash {
@@ -270,23 +314,6 @@
             font-size: 18px;
             text-shadow: 2px 2px #000000;
         }
-        
-        .visitor-counter {
-            background: #000080;
-            color: #00FF00;
-            padding: 10px;
-            border: 3px inset #808080;
-            margin: 20px 0;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            animation: flicker 0.5s infinite;
-        }
-        
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
     </style>
 </head>
 <body>
@@ -315,6 +342,8 @@
             ※※※ 今すぐブックマーク登録だ！！！ ※※※
         </div>
         
+        <div class="separator"></div>
+        
         <div class="game-section">
             <div class="game-title">クイズ枝豆<span class="new-badge">HOT!</span></div>
             <div class="game-url">
@@ -328,9 +357,10 @@
             </div>
             <div class="game-image">
                 <img src="/kurum-games/images/edamame.png" alt="クイズ枝豆のスクリーンショット">
-                <div class="image-caption">※ edamame.png ※</div>
             </div>
         </div>
+        
+        <div class="separator"></div>
         
         <div class="game-section">
             <div class="game-title">神経衰弱<span class="new-badge">人気!</span></div>
@@ -345,9 +375,10 @@
             </div>
             <div class="game-image">
                 <img src="/kurum-games/images/nervous-breakdown.png" alt="神経衰弱のスクリーンショット">
-                <div class="image-caption">※ nervous-breakdown.png ※</div>
             </div>
         </div>
+        
+        <div class="separator"></div>
         
         <div class="game-section">
             <div class="game-title">go!go！くるむセンパイ<span class="new-badge">NEW!</span></div>
@@ -362,9 +393,10 @@
             </div>
             <div class="game-image">
                 <img src="/kurum-games/images/run-senpai.png" alt="go!go！くるむセンパイのスクリーンショット">
-                <div class="image-caption">※ run-senpai.png ※</div>
             </div>
         </div>
+        
+        <div class="separator"></div>
         
         <div class="marquee">
             ★☆★ 友達にも教えてあげよう！！みんなで楽しもう！！ ★☆★
@@ -373,11 +405,9 @@
         <div class="footer">
             ◆◇◆ KURUM GAMES PARADISE ◆◇◆<br>
             ～～～ ゲームで遊んでストレス発散！！ ～～～<br><br>
-            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░<br>
             【運営元】<br>
             <a href="https://kurum.co.jp/" style="color: #FFFF00; text-decoration: underline;">KURUM, Inc.</a><br>
-            https://kurum.co.jp/<br>
-            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+            https://kurum.co.jp/
         </div>
     </div>
 </body>
