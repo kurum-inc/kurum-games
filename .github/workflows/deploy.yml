@@ -1,4 +1,4 @@
-name: Build and Deploy Subdirectory
+name: はしれ！くるむセンパイのデプロイ
 
 on:
   push:
@@ -26,13 +26,13 @@ jobs:
           node-version: '18'
 
       # 説明ページ用のREADMEをHTMLに変換
-      - name: Install pandoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
-      - name: Convert README.md to index.html
-        run: |
-          pandoc README.md -f markdown -t html -o index.html
+      # - name: Install pandoc
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y pandoc
+      # - name: Convert README.md to index.html
+      #   run: |
+      #     pandoc README.md -f markdown -t html -o index.html
       
       # Firebaseのセットアップ
       - name: Install Firebase Tools
