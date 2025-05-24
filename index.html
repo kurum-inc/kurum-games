@@ -38,7 +38,7 @@
             color: #FF0000;
             font-size: 32px;
             text-shadow: 3px 3px #FFFF00, 6px 6px #00FF00, 9px 9px #FF00FF;
-            animation: blink 0.5s infinite, bounce 1s infinite;
+            animation: blink 1s infinite, bounce 1s infinite;
             border: 3px dashed #00FFFF;
             padding: 20px;
             background: linear-gradient(45deg, #000080, #800080, #008000);
@@ -172,11 +172,27 @@
             filter: sepia(20%) saturate(150%);
         }
         
-        .game-image iframe {
+        /* .game-image iframe {
             width: 100%;
-            height: auto;
+            height: 100%;
             border: 3px solid #000000;
             filter: sepia(20%) saturate(150%);
+        } */
+
+        .game-video {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 = 9/16 * 100 */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .game-video iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         
         .separator {
@@ -399,7 +415,7 @@
                 ♦♦♦ アクション満載！スリル満点！ ♦♦♦<br>
                 ★★★ 今年一番の話題作だ！！！ ★★★
             </div>
-            <div class="game-image">
+            <div class="game-video">
                 <iframe src="https://www.youtube.com/embed/jcXw6RQ-Gpc?si=h8sTLqFiL8xx4OuB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </div>
